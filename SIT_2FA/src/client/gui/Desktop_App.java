@@ -2,6 +2,7 @@ package client.gui;
 
 import java.awt.*;
 import java.awt.event.*;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
@@ -139,7 +140,13 @@ public class Desktop_App implements ActionListener {
 	public static void main(String[] args) {
 
 		/* Turn off metal's use of bold fonts */
-		UIManager.put("swing.boldMetal", Boolean.FALSE);
+		//UIManager.put("swing.boldMetal", Boolean.FALSE);
+		try {
+			UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+		} catch (ClassNotFoundException | InstantiationException
+				| IllegalAccessException | UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
 
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
