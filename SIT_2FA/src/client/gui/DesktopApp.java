@@ -120,14 +120,14 @@ public class DesktopApp implements ActionListener {
 	
 	public void actionPerformed(ActionEvent e) {
         if ("login".equals(e.getActionCommand())) {
-//        	boolean loggedIn = client.login(userNameField.getText(), new String(userPwField.getPassword()));
-//			if(loggedIn) {
-//				System.out.println("logged in");
-//				CardLayout cl = (CardLayout) (cards.getLayout());
-//	    		cl.show(cards, MAIN_PANEL);
-//			} else {
-//				System.out.println("invalid username/password");
-//			}
+        	boolean loggedIn = client.login(userNameField.getText(), new String(userPwField.getPassword()));
+			if(loggedIn) {
+				System.out.println("logged in");
+				CardLayout cl = (CardLayout) (cards.getLayout());
+	    		cl.show(cards, MAIN_PANEL);
+			} else {
+				System.out.println("invalid username/password");
+			}
         } else if ("create".equals(e.getActionCommand())){
             
         }
@@ -137,7 +137,7 @@ public class DesktopApp implements ActionListener {
 	 * Create the GUI and show it. For thread safety, this method should be
 	 * invoked from the event dispatch thread.
 	 */
-	private static void createAndShowGUI(Client client) {
+	private void createAndShowGUI() {
 		// Create and set up the window.
 		JFrame frame = new JFrame("Desktop App");
 		frame.setPreferredSize(new Dimension(400, 500));
@@ -145,15 +145,15 @@ public class DesktopApp implements ActionListener {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// Create and set up the content pane.
-		DesktopApp demo = new DesktopApp(client);
-		demo.addComponentToPane(frame.getContentPane());
+		//DesktopApp demo = new DesktopApp();
+		addComponentToPane(frame.getContentPane());
 
 		// Display the window.
 		frame.pack();
 		frame.setVisible(true);
 	}
 	
-	public static void startGui(Client client) {		
+	public void startGui() {		
 		/* Turn off metal's use of bold fonts */
 		//UIManager.put("swing.boldMetal", Boolean.FALSE);
 		try {
@@ -163,9 +163,9 @@ public class DesktopApp implements ActionListener {
 			e.printStackTrace();
 		}
 
-		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				createAndShowGUI(client);
+				createAndShowGUI();
 			}
 		});
 	}

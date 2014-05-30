@@ -12,10 +12,10 @@ public class Main {
 	
 	public static void main(String[] args) {
 		Client client = new Client();
-		//DesktopApp desktopApp = new DesktopApp();
+		DesktopApp desktopApp = new DesktopApp(client);
 		
 		initializeClientEncryption(client);
-		DesktopApp.startGui(client);
+		desktopApp.startGui();
 	}
 
 }
