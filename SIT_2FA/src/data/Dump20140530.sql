@@ -29,15 +29,15 @@ CREATE TABLE `users` (
   `username` varchar(50) NOT NULL,
   `password` varchar(200) NOT NULL,
   `salt` varchar(200) NOT NULL,
-  `secret` varchar(10) NOT NULL,
-  `token` varchar(10) DEFAULT NULL,
+  `secret` varchar(20) NOT NULL,
+  `token` varchar(20) DEFAULT NULL,
   `experationDate` varchar(50) DEFAULT NULL,
   `secondAuthentication` bit(1) DEFAULT NULL,
   `tokenUsed` bit(1) DEFAULT NULL,
   PRIMARY KEY (`userId`),
   UNIQUE KEY `UserId_UNIQUE` (`userId`),
   UNIQUE KEY `Username_UNIQUE` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1 COMMENT='User Tables';
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=latin1 COMMENT='User Tables';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -46,6 +46,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES (32,'rene','5py/Kd1yQTw1kKrueMYymUhhXKQ=','x1SxbtZPikqpavZg16x/s1lflW0=','12345','421139539','2014-05-30T22:24:52.258',NULL,'');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -58,4 +59,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-05-30 18:55:21
+-- Dump completed on 2014-05-30 22:27:26
