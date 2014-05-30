@@ -6,10 +6,20 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-public class Desktop_App implements ActionListener {
+import client.Client;
+
+public class DesktopApp implements ActionListener {
+	private Client client;
 	JPanel cards; // a panel that uses CardLayout
 	final static String LOGIN_CREATE_PANEL = "Card login and create user";
 	final static String MAIN_PANEL = "Card after succesfull login";
+	
+	JPasswordField userPwField;
+	JTextField userNameField;
+	
+	public DesktopApp(Client client) {
+		this.client = client;
+	}
 
 	public void addComponentToPane(Container pane) {
 		// Create the "cards".
@@ -25,14 +35,14 @@ public class Desktop_App implements ActionListener {
 		containerPanel.setMaximumSize(sizeOfContainerPanel);
 		containerPanel.setMinimumSize(sizeOfContainerPanel);
 
-		JTextField userNameField = new JTextField(5);
+		userNameField = new JTextField(5);
 		userNameField.setHorizontalAlignment(JTextField.CENTER);
 		JLabel userNameLabel = new JLabel("Benutzername");
 		userNameLabel.setLabelFor(userNameField);
 		userNameLabel.setFont(userNameLabel.getFont().deriveFont(14.0f));
 		userNameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-		JPasswordField userPwField = new JPasswordField(5);
+		userPwField = new JPasswordField(5);
 		userPwField.setHorizontalAlignment(JPasswordField.CENTER);
 		// userPwField.setActionCommand(OK);
 		// userPwField.addActionListener(this);
@@ -110,8 +120,14 @@ public class Desktop_App implements ActionListener {
 	
 	public void actionPerformed(ActionEvent e) {
         if ("login".equals(e.getActionCommand())) {
-        	CardLayout cl = (CardLayout) (cards.getLayout());
-    		cl.show(cards, MAIN_PANEL);
+//        	boolean loggedIn = client.login(userNameField.getText(), new String(userPwField.getPassword()));
+//			if(loggedIn) {
+//				System.out.println("logged in");
+//				CardLayout cl = (CardLayout) (cards.getLayout());
+//	    		cl.show(cards, MAIN_PANEL);
+//			} else {
+//				System.out.println("invalid username/password");
+//			}
         } else if ("create".equals(e.getActionCommand())){
             
         }
@@ -121,7 +137,7 @@ public class Desktop_App implements ActionListener {
 	 * Create the GUI and show it. For thread safety, this method should be
 	 * invoked from the event dispatch thread.
 	 */
-	private static void createAndShowGUI() {
+	private static void createAndShowGUI(Client client) {
 		// Create and set up the window.
 		JFrame frame = new JFrame("Desktop App");
 		frame.setPreferredSize(new Dimension(400, 500));
@@ -129,16 +145,15 @@ public class Desktop_App implements ActionListener {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// Create and set up the content pane.
-		Desktop_App demo = new Desktop_App();
+		DesktopApp demo = new DesktopApp(client);
 		demo.addComponentToPane(frame.getContentPane());
 
 		// Display the window.
 		frame.pack();
 		frame.setVisible(true);
 	}
-
-	public static void main(String[] args) {
-
+	
+	public static void startGui(Client client) {		
 		/* Turn off metal's use of bold fonts */
 		//UIManager.put("swing.boldMetal", Boolean.FALSE);
 		try {
@@ -150,7 +165,7 @@ public class Desktop_App implements ActionListener {
 
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				createAndShowGUI();
+				createAndShowGUI(client);
 			}
 		});
 	}
