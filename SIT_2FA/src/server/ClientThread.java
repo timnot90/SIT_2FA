@@ -80,7 +80,6 @@ public class ClientThread extends Thread {
 		String[] messages;
 		messages = new String[] { signature, text };
 		json = gson.toJson(messages);
-		System.out.printf("json: %s%n", json);
 
 		out.println(json);
 	}

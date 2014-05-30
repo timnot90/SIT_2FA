@@ -9,25 +9,21 @@ import java.security.spec.InvalidKeySpecException;
 
 import javax.crypto.SecretKey;
 
-import security.keyExchange.DiffieHellmanKeyExchange;
-import security.keyExchange.KeyExchangeMethod;
+import client.action.KeyExchangeAction;
+import client.action.LoginAction;
+import client.action.RegisterAction;
 import security.encryption.PasswordHash;
-import security.encryption.PublicKeyEncryption;
-import security.encryption.RSAEncryption;
 
 public class Client {
 	private ClientConnetcion connection;
-	private KeyExchangeMethod keyExchange;
 	private PasswordHash paswordHash;
 	private int id;
 	
-	private PublicKeyEncryption encryption;
 	private SecretKey key;
 	
 	public Client() {
 		try {
 			connection = new ClientConnetcion();
-			keyExchange = new DiffieHellmanKeyExchange();
 			paswordHash = new PasswordHash();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -62,35 +58,11 @@ public class Client {
 	 * 3. message: public key
 	 */
 	public void initilizeKeyExchange() {
-		keyExchange.initilizeKeyExchange();
-		String prime = ((DiffieHellmanKeyExchange) keyExchange).getPrime();
-		String base = ((DiffieHellmanKeyExchange) keyExchange).getBase();
-		String publicKey = keyExchange.getPublicKey();
-		encryption = new RSAEncryption();
-
-		try {
-			connection.sendMessage(encryption.encrypt(prime.getBytes(), connection.getPublicKey()));
-			connection.sendMessage(encryption.encrypt(base.getBytes(), connection.getPublicKey()));
-			connection.sendMessage(encryption.encrypt(publicKey.getBytes(), connection.getPublicKey()));
-			
-			String serverPublicKey = connection.readMessage();
-			key = keyExchange.generateKey(serverPublicKey.getBytes());
-		} catch (InvalidKeyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.key = new KeyExchangeAction(connection).doKeyExchange();
 	}
 
 	public boolean login(String username, String password) {
-		boolean loggedIn = false;
-		
-		if(!username.equals("") && !password.equals("")
-				&& username != null && password != null) {
-			
-			byte[] salt = connection.readMessage().getBytes();
-			byte[] hash = paswordHash.hashPassword(password, salt);
-		}
-		return loggedIn;
+		return new LoginAction(connection).login(username, password);
 	}
 
 	/**
@@ -102,7 +74,7 @@ public class Client {
 	 * @return
 	 */
 	public boolean register(String username, String password, String secret) {
-		return false;
+		return new RegisterAction(connection).register(username, password, secret);
 	}
 	
 	/**

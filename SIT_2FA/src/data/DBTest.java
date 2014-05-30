@@ -2,6 +2,8 @@ package data;
 
 import static org.junit.Assert.*;
 
+import java.time.LocalDateTime;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,5 +24,14 @@ public class DBTest {
 		
 		assertEquals("bob", password);
 	}
-
+	
+	@Test
+	public void setTokenTest() {
+		LocalDateTime experationDate =  LocalDateTime.now().plusSeconds(45);
+		db.createUser("martin", "bob", "ja", "definitiv");
+		db.setToken("testToken", experationDate, "martin");
+		LocalDateTime dbDateTime = db.getExperationDate("martin");
+		db.deleteUser("martin");
+		assertEquals(experationDate, dbDateTime);
+	}
 }

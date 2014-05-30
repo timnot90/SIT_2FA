@@ -40,11 +40,13 @@ public class MySqlUserDataConnection implements UserDataInterface {
 	@Override
 	public boolean createUser(String username, String password, String secret,
 			String salt) {
+
+		String statement = "INSERT INTO "
+				+ "users(username, password, secret, salt) "
+				+ "VALUES(?,?,?,?);";
 		try {
 			PreparedStatement userCreationStatement = connection
-					.prepareStatement("INSERT INTO "
-							+ "users(username, password, secret, salt) "
-							+ "VALUES(?,?,?,?);");
+					.prepareStatement(statement);
 
 			userCreationStatement.setString(1, username);
 			userCreationStatement.setString(2, password);
@@ -75,11 +77,21 @@ public class MySqlUserDataConnection implements UserDataInterface {
 	}
 
 	@Override
-	public void setToken(String token) {
-		// TODO Auto-generated method stub
-
+	public void setToken(String token, LocalDateTime experationDate, String username) {
+		String statement = "UPDATE users SET token = ?, experationDate = ? WHERE username = ?";
+		try {
+			PreparedStatement setTokenStatement = connection.prepareStatement(statement);
+			setTokenStatement.setString(1, token);
+			setTokenStatement.setString(2, experationDate.toString());
+			setTokenStatement.setString(3, username);
+			
+			setTokenStatement.execute();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
-
+	
 	@Override
 	public String getPassword(String username) {
 		String password = "";
@@ -100,20 +112,75 @@ public class MySqlUserDataConnection implements UserDataInterface {
 
 	@Override
 	public String getSalt(String username) {
-		// TODO Auto-generated method stub
-		return null;
+		String salt = "";
+		String statement = "SELECT salt FROM users WHERE username= ? ;";
+		try {
+			PreparedStatement userSelectionStatement =
+					connection.prepareStatement(statement);
+			userSelectionStatement.setString(1, username);
+			ResultSet rs = userSelectionStatement.executeQuery();
+			rs.next();
+			salt = rs.getString("salt");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return salt;
 	}
 
 	@Override
 	public String getToken(String username) {
-		// TODO Auto-generated method stub
-		return null;
+		String token = "";
+		String statement = "SELECT token FROM users WHERE username= ? ;";
+		try {
+			PreparedStatement userSelectionStatement =
+					connection.prepareStatement(statement);
+			userSelectionStatement.setString(1, username);
+			ResultSet rs = userSelectionStatement.executeQuery();
+			rs.next();
+			token = rs.getString("token");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return token;
 	}
 
 	@Override
 	public LocalDateTime getExperationDate(String username) {
-		// TODO Auto-generated method stub
-		return null;
+		LocalDateTime experationDate = null;
+		String statement = "SELECT experationDate FROM users WHERE username= ? ;";
+		try {
+			PreparedStatement userSelectionStatement =
+					connection.prepareStatement(statement);
+			userSelectionStatement.setString(1, username);
+			ResultSet rs = userSelectionStatement.executeQuery();
+			rs.next();
+			experationDate = LocalDateTime.parse(rs.getString("experationDate"));
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return experationDate;
 	}
 
+	public boolean isAuthenticatedWithToken(String username) {
+		boolean isAuthenticated = false;
+		String statement = "SELECT secondAuthentication FROM users WHERE username = ? ;";
+		try {
+			PreparedStatement autenticationStatement = connection.prepareStatement(statement);
+			autenticationStatement.setString(1, username);
+			
+			ResultSet rs = autenticationStatement.executeQuery();
+			rs.next();
+			isAuthenticated = rs.getBoolean("secondAuthentication");
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		return isAuthenticated;
+	}
 }
