@@ -82,9 +82,37 @@ public class Client {
 	}
 
 	public boolean login(String username, String password) {
-		byte[] salt = connection.readMessage().getBytes();
-		byte[] hash = paswordHash.hashPassword(password, salt);
+		boolean loggedIn = false;
 		
+		if(!username.equals("") && !password.equals("")
+				&& username != null && password != null) {
+			
+			byte[] salt = connection.readMessage().getBytes();
+			byte[] hash = paswordHash.hashPassword(password, salt);
+		}
+		return loggedIn;
+	}
+
+	/**
+	 * register new user.
+	 * password confirmation check in desktop app or here?
+	 * @param username
+	 * @param password
+	 * @param secret
+	 * @return
+	 */
+	public boolean register(String username, String password, String secret) {
+		return false;
+	}
+	
+	/**
+	 * wait for the server response.
+	 * 
+	 * @return
+	 * 		true - second authentication successful
+	 * 		false - second authentication unsuccessful (timeout, secret did not match)
+	 */
+	public boolean checkForSecondAuthentication() {
 		return false;
 	}
 }

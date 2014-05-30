@@ -1,13 +1,14 @@
-package server;
+package server.action;
 
+import server.ClientThread;
 import data.MySqlUserDataConnection;
 import data.UserDataInterface;
 
-public class Login {
+public class LoginAction {
 	private ClientThread client;
 	private UserDataInterface userDb;
 	
-	public Login(ClientThread client) {
+	public LoginAction(ClientThread client) {
 		this.client = client;
 		userDb = new MySqlUserDataConnection();
 	}

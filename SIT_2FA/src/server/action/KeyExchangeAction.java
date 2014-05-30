@@ -1,4 +1,4 @@
-package server;
+package server.action;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,8 +19,9 @@ import com.google.gson.Gson;
 
 import security.encryption.PublicKeyEncryption;
 import security.encryption.RSAEncryption;
+import server.ClientThread;
 
-public class KeyExchange {
+public class KeyExchangeAction {
 	private PrivateKey privateKey;
 
 	private PublicKeyEncryption encryption;
@@ -35,7 +36,7 @@ public class KeyExchange {
 	private Encoder b64Encoder = Base64.getEncoder();
 	private Decoder b64Decoder = Base64.getDecoder();
 
-	public KeyExchange(PrivateKey pk, ClientThread client) {
+	public KeyExchangeAction(PrivateKey pk, ClientThread client) {
 		this.privateKey = pk;
 		this.encryption = new RSAEncryption();
 		this.client = client;

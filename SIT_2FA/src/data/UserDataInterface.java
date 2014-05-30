@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 public interface UserDataInterface {
 	public boolean createUser(String username, String password, String secret, String salt);
+	public boolean deleteUser(String username);
 	public void setToken(String token);
 	
 	public String getPassword(String username);

@@ -15,8 +15,12 @@ public class DBTest {
 	}
 	
 	@Test
-	public void test() {
-		assertTrue(true);
+	public void createUserTest() {
+		db.createUser("martin", "bob", "ja", "definitiv");
+		String password = db.getPassword("martin");
+		db.deleteUser("martin");
+		
+		assertEquals("bob", password);
 	}
 
 }

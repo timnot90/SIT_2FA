@@ -44,7 +44,7 @@ public class MySqlUserDataConnection implements UserDataInterface {
 			PreparedStatement userCreationStatement = connection
 					.prepareStatement("INSERT INTO "
 							+ "users(username, password, secret, salt) "
-							+ "VALUES(?,?,?,?)");
+							+ "VALUES(?,?,?,?);");
 
 			userCreationStatement.setString(1, username);
 			userCreationStatement.setString(2, password);
@@ -52,6 +52,21 @@ public class MySqlUserDataConnection implements UserDataInterface {
 			userCreationStatement.setString(4, salt);
 
 			return userCreationStatement.execute();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public boolean deleteUser(String username) {
+		String statement = "DELETE FROM users WHERE username=?;";
+		try {
+			PreparedStatement userdeleteStatement = connection
+					.prepareStatement(statement);
+			userdeleteStatement.setString(1, username);
+			
+			userdeleteStatement.execute();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -68,12 +83,12 @@ public class MySqlUserDataConnection implements UserDataInterface {
 	@Override
 	public String getPassword(String username) {
 		String password = "";
-		String statement = "SELECT password FROM users WHERE username=?";
+		String statement = "SELECT password FROM users WHERE username= ? ;";
 		try {
 			PreparedStatement userSelectionStatement =
 					connection.prepareStatement(statement);
 			userSelectionStatement.setString(1, username);
-			ResultSet rs = userSelectionStatement.executeQuery(statement);
+			ResultSet rs = userSelectionStatement.executeQuery();
 			rs.next();
 			password = rs.getString("password");
 		} catch (SQLException e) {

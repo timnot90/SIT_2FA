@@ -21,6 +21,7 @@ import com.google.gson.JsonSyntaxException;
 
 import security.signature.RSASignature;
 import security.encryption.RSAEncryption;
+import server.action.KeyExchangeAction;
 
 public class ClientThread extends Thread {
 
@@ -64,7 +65,7 @@ public class ClientThread extends Thread {
 	public void run() {
 		sendSignedText(clientID+"");
 		
-		KeyExchange exchange = new KeyExchange(privK, this);
+		KeyExchangeAction exchange = new KeyExchangeAction(privK, this);
 		key = exchange.doKeyExchange();
 	}
 
