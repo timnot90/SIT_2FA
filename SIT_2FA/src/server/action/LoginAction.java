@@ -13,7 +13,19 @@ public class LoginAction {
 		userDb = new MySqlUserDataConnection();
 	}
 	
-	public void login() {
+	/**
+	 * -> salt
+	 * 	<- password
+	 * -> loggedIn
+	 * @param username 
+	 */
+	public boolean login(String username) {
+		boolean loggedIn = false;
+		client.sendSignedAndEncryptedText(userDb.getSalt(username));
 		
+		String passwordHash = client.readMessageAndDecrypt();
+		String passwordHashDb = userDb.getPassword(username);
+		
+		return passwordHash.equals(passwordHashDb);
 	}
 }

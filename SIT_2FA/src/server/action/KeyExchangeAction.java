@@ -58,7 +58,6 @@ public class KeyExchangeAction {
 		byte[][] input = new byte[3][];
 		for (int i = 0; i < 3; i++) {
 			input[i] = encryption.decrypt(client.readMessage(), privateKey);
-			System.out.println(new String(input[i]));
 		}
 		p = new BigInteger(new String(input[0]));
 		g = new BigInteger(new String(input[1]));

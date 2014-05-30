@@ -4,26 +4,34 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Base64;
+import java.util.Base64.Decoder;
+import java.util.Base64.Encoder;
 
 public class PasswordHash {
 	private int iterations = 10000;
 	private SecureRandom random;
 
+	private Encoder b64Encoder = Base64.getEncoder();
+	private Decoder b64Decoder = Base64.getDecoder();
+	
 	public PasswordHash() {
 		random = new SecureRandom();
 	}
 
-	public byte[] generateSalt() {
-		return random.generateSeed(10);
+	public String generateSalt() {
+		byte[] salt = new byte[20];
+		random.nextBytes(salt);
+		return b64Encoder.encodeToString(salt);
 	}
 	
-	public byte[] hashPassword(String password, byte[] salt) {
+	public String hashPassword(String password, String salt) {
 		byte[] hash = null;
 		MessageDigest digest;
 		try {
 			digest = MessageDigest.getInstance("SHA-1");
 			digest.reset();
-			digest.update(salt);
+			digest.update(b64Decoder.decode(salt));
 			hash = digest.digest(password.getBytes("UTF-8"));
 			for (int i = 0; i < iterations; i++) {
 				digest.reset();
@@ -36,6 +44,6 @@ public class PasswordHash {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return hash;
+		return b64Encoder.encodeToString(hash);
 	}
 }

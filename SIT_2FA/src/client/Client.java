@@ -9,15 +9,14 @@ import java.security.spec.InvalidKeySpecException;
 
 import javax.crypto.SecretKey;
 
-import client.action.KeyExchangeAction;
-import client.action.LoginAction;
-import client.action.RegisterAction;
+import client.action.*;
 import security.encryption.PasswordHash;
 
 public class Client {
 	private ClientConnetcion connection;
 	private PasswordHash paswordHash;
 	private int id;
+	private String username;
 	
 	private SecretKey key;
 	
@@ -62,7 +61,13 @@ public class Client {
 	}
 
 	public boolean login(String username, String password) {
-		return new LoginAction(connection).login(username, password);
+		boolean loggedIn =  new LoginAction(connection, key).login(username, password);
+		
+		if(loggedIn) {
+			this.username = username;
+		}
+		
+		return loggedIn;
 	}
 
 	/**
@@ -74,7 +79,13 @@ public class Client {
 	 * @return
 	 */
 	public boolean register(String username, String password, String secret) {
-		return new RegisterAction(connection).register(username, password, secret);
+		return new RegisterAction(connection, key).register(username, password, secret);
+	}
+	
+	public String generateToken() {
+		String token = new GenerateTokenAction(connection, key).generateToken(username);
+		System.out.println(token);
+		return token;
 	}
 	
 	/**
@@ -85,6 +96,12 @@ public class Client {
 	 * 		false - second authentication unsuccessful (timeout, secret did not match)
 	 */
 	public boolean checkForSecondAuthentication() {
-		return false;
+		boolean success = new SecondAutenticationAction(connection, key).checkSecondAuthentication(username);
+		System.out.printf("2. autentication %s%n", success);
+		return success;
+	}
+	
+	public void exit() {
+		new ExitAction(connection, key).exit();
 	}
 }

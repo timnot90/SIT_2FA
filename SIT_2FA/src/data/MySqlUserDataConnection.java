@@ -40,7 +40,7 @@ public class MySqlUserDataConnection implements UserDataInterface {
 	@Override
 	public boolean createUser(String username, String password, String secret,
 			String salt) {
-
+		boolean created = false;
 		String statement = "INSERT INTO "
 				+ "users(username, password, secret, salt) "
 				+ "VALUES(?,?,?,?);";
@@ -53,12 +53,13 @@ public class MySqlUserDataConnection implements UserDataInterface {
 			userCreationStatement.setString(3, secret);
 			userCreationStatement.setString(4, salt);
 
-			return userCreationStatement.execute();
+			userCreationStatement.execute();
+			created = true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return false;
+		return created;
 	}
 	
 	public boolean deleteUser(String username) {
@@ -78,12 +79,13 @@ public class MySqlUserDataConnection implements UserDataInterface {
 
 	@Override
 	public void setToken(String token, LocalDateTime experationDate, String username) {
-		String statement = "UPDATE users SET token = ?, experationDate = ? WHERE username = ?";
+		String statement = "UPDATE users SET token = ?, experationDate = ?, tokenUsed = ? WHERE username = ?";
 		try {
 			PreparedStatement setTokenStatement = connection.prepareStatement(statement);
 			setTokenStatement.setString(1, token);
 			setTokenStatement.setString(2, experationDate.toString());
-			setTokenStatement.setString(3, username);
+			setTokenStatement.setBoolean(3, false);
+			setTokenStatement.setString(4, username);
 			
 			setTokenStatement.execute();
 		} catch (SQLException e) {
@@ -182,5 +184,56 @@ public class MySqlUserDataConnection implements UserDataInterface {
 		
 		
 		return isAuthenticated;
+	}
+
+	@Override
+	public boolean existsUser(String username) {
+		boolean exists = false;
+		String statement = "SELECT username FROM users WHERE username= ? ;";
+		try {
+			PreparedStatement userSelectionStatement =
+					connection.prepareStatement(statement);
+			userSelectionStatement.setString(1, username);
+			ResultSet rs = userSelectionStatement.executeQuery();
+			if(rs.next())
+				exists = true;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return exists;
+	}
+
+	@Override
+	public void setTokenUsed(boolean used, String username) {
+		String statement = "UPDATE users SET tokenUsed = ? WHERE username = ?";
+		try {
+			PreparedStatement setTokenStatement = connection.prepareStatement(statement);
+			setTokenStatement.setBoolean(1, used);
+			setTokenStatement.setString(2, username);
+			
+			setTokenStatement.execute();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public boolean isTokenValid(String username) {
+		boolean valid = false;
+		String statement = "SELECT experationDate, tokenUsed FROM users WHERE username= ? ;";
+		try {
+			PreparedStatement userSelectionStatement =
+					connection.prepareStatement(statement);
+			userSelectionStatement.setString(1, username);
+			ResultSet rs = userSelectionStatement.executeQuery();
+			rs.next();
+			valid = (getExperationDate(username).isAfter(LocalDateTime.now()) && !rs.getBoolean("tokenUsed"));
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return valid;
 	}
 }

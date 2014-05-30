@@ -99,8 +99,6 @@ public class DiffieHellmanKeyExchange implements KeyExchangeMethod {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("DH finished");
-		System.out.printf("Key: %s%n", b64Encoder.encodeToString(key.getEncoded()));
 		return key;
 	}
 

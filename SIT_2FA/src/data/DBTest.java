@@ -20,8 +20,10 @@ public class DBTest {
 	public void createUserTest() {
 		db.createUser("martin", "bob", "ja", "definitiv");
 		String password = db.getPassword("martin");
+		String salt = db.getSalt("martin");
 		db.deleteUser("martin");
 		
+		assertEquals("definitiv", salt);
 		assertEquals("bob", password);
 	}
 	
@@ -33,5 +35,13 @@ public class DBTest {
 		LocalDateTime dbDateTime = db.getExperationDate("martin");
 		db.deleteUser("martin");
 		assertEquals(experationDate, dbDateTime);
+	}
+
+	@Test
+	public void existsUserTest() {
+		assertFalse(db.existsUser("martin"));
+		db.createUser("martin", "bob", "ja", "definitiv");
+		assertTrue(db.existsUser("martin"));
+		db.deleteUser("martin");
 	}
 }
