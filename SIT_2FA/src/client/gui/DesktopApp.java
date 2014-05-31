@@ -129,7 +129,12 @@ public class DesktopApp implements ActionListener {
 				System.out.println("invalid username/password");
 			}
         } else if ("create".equals(e.getActionCommand())){
-            
+            boolean registered = client.register(userNameField.getText(), new String(userPwField.getPassword()), "tbd");
+            if(registered) {
+            	System.out.println("registered");
+            } else {
+            	System.out.println("registration failed");
+            }
         }
     }
 	
