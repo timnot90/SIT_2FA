@@ -13,11 +13,12 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import data.MySqlUserDataConnection;
+import data.UserDataInterface;
 
 public class TokenHandler implements HttpHandler {
 	
 	private final String RELATIVE_PATH_ROOT = TokenHandler.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-	private final MySqlUserDataConnection db = new MySqlUserDataConnection();
+	private final UserDataInterface db = new MySqlUserDataConnection();
 	
 	public void handle(HttpExchange httpExchange) throws IOException {
 
@@ -26,15 +27,18 @@ public class TokenHandler implements HttpHandler {
 		if(requestMethod.equals("POST")) {
 			
 			Map params = (Map)httpExchange.getAttribute("parameters");
-			
-			String token = params.get("token").toString();	
+
 			String username  = params.get("username").toString();
+			String sentToken = params.get("token").toString();	
 			
-			db.setToken(token, LocalDateTime.now().plusMinutes(1), username);
-			System.out.println(db.getToken(username));
+			String expectedToken = db.getToken(username);
 			
-			sendHtml(httpExchange, "tokenOk.html");
-			
+			if(sentToken.equals(expectedToken)) {
+				sendHtml(httpExchange, "tokenOk.html");
+				db.setIsAuthenticatedWithToken(username, true);
+			} else {
+				sendHtml(httpExchange, "tokenFalse.html");	
+			}			
 		} else if(requestMethod.equals("GET")) {	
 			sendHtml(httpExchange, "token.html");
 		}

@@ -8,6 +8,7 @@ public interface UserDataInterface {
 	public boolean existsUser(String username);
 	public void setToken(String token, LocalDateTime experationDate, String username);
 	public void setTokenUsed(boolean used, String username);
+	public void setIsAuthenticatedWithToken(String username, boolean state);
 	public boolean isTokenValid(String username);
 	
 	public String getPassword(String username);

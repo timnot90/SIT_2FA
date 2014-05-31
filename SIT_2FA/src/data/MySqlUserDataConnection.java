@@ -217,6 +217,21 @@ public class MySqlUserDataConnection implements UserDataInterface {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}	
+
+	@Override
+	public void setIsAuthenticatedWithToken(String username, boolean state) {
+		String statement = "UPDATE users SET secondAuthentication = ? WHERE username = ?";
+		try {
+			PreparedStatement setIsAuthenticatedStatement = connection.prepareStatement(statement);
+			setIsAuthenticatedStatement.setBoolean(1, state);
+			setIsAuthenticatedStatement.setString(2, username);
+
+			setIsAuthenticatedStatement.execute();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
