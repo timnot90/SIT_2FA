@@ -3,6 +3,7 @@ package client.gui;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -17,16 +18,18 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 
 import org.jdesktop.swingx.prompt.PromptSupport;
 
 import client.Client;
 
-enum Cards {LOGIN, SIGN_UP, RANDOM_NUMBER};
+enum Cards {LOGIN, SIGN_UP, TOKEN};
 
 public class YADA {
 	Client client;
 	JPanel cardPane;
+	JLabel lblToken;
 
 	public static void main(String[] args) {
 		new YADA().start();
@@ -77,6 +80,14 @@ public class YADA {
 		return (JButton)addComponentToPane(btn, pane);
 	}
 	
+	private JLabel addHeaderToPane(String label, Container pane) {
+		JLabel lblHeader = new JLabel(label);
+		lblHeader.setFont(new Font(Font.DIALOG, Font.BOLD, 24));
+		lblHeader.setBorder(new EmptyBorder(15, 0, 15, 0)); // t, r, b, l
+		
+		return (JLabel) addComponentToPane(lblHeader, pane);
+	}
+	
 	private JComponent addComponentToPane(JComponent component, Container pane) {
 		component.setAlignmentX(Component.CENTER_ALIGNMENT);
 		pane.add(component);
@@ -84,8 +95,10 @@ public class YADA {
 		return component;
 	}
 	
-	private void addLoginToPane(Container pane) {
+	private void setupLoginPanelOnPane(Container pane) {
 		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
+		
+		addHeaderToPane("Login", pane);
 		
 		JTextField txtUsername = addTextFieldToPane("Username", pane);
 		JPasswordField txtPassword = addPasswordFieldToPane("Password", pane);
@@ -94,11 +107,12 @@ public class YADA {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				boolean loggedIn = client.login(txtUsername.getText(), new String(txtPassword.getPassword()));
+				boolean loggedIn = client.login(txtUsername.getText().toLowerCase(), new String(txtPassword.getPassword()));
 				
 				if (loggedIn) {
 					System.out.println("logged in");
-					showCard(Cards.RANDOM_NUMBER);
+					lblToken.setText(client.generateToken());
+					showCard(Cards.TOKEN);
 				} else {
 					System.out.println("invalid username/password");
 				}
@@ -113,24 +127,48 @@ public class YADA {
 			}
 		});
 	}
-	
-	private void addRandomNumberToPane(Container pane) {
-		JLabel randomNumber = new JLabel("123");
-		pane.add(randomNumber);
+
+	private void setupTokenPanelOnPane(Container pane) {
+		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
+		
+		addHeaderToPane("Token", pane);
+		
+		lblToken = new JLabel("Error: No Token to display.");
+		addComponentToPane(lblToken, pane);
 	}
 	
-	private void addSignupToPane(Container pane) {
+	private void setupSignUpPanelOnPane(Container pane) {
 		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
+		
+		addHeaderToPane("Sign Up", pane);
 		
 		JTextField txtUsername = addTextFieldToPane("Username", pane);
 		JPasswordField txtPassword = addPasswordFieldToPane("Password", pane);
 		JTextField txtSecret = addTextFieldToPane("Secret", pane);
 		
-		addButtonToPane("Sign Up", pane).addActionListener(new ActionListener() {
+		// Create panel with two buttons: "Cancel" and "Sign Up".
+		JButton btnCancel = new JButton("Cancel");
+		JButton btnSignUp = new JButton("Sign Up");
+		
+		JPanel btnPanel = new JPanel();
+		btnPanel.add(btnCancel);
+		btnPanel.add(btnSignUp);
+		
+		addComponentToPane(btnPanel, pane);
+		
+		btnCancel.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				boolean registered = client.register(txtUsername.getText(), new String(txtPassword.getPassword()), txtSecret.getText());
+				showCard(Cards.LOGIN);
+			}
+		});
+		
+		btnSignUp.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				boolean registered = client.register(txtUsername.getText().toLowerCase(), new String(txtPassword.getPassword()), txtSecret.getText().toLowerCase());
 				
 				if (registered) {
 					System.out.println("registered");
@@ -162,21 +200,21 @@ public class YADA {
 		
 		// Create panel with login functionality.
 		JPanel loginPanel = new JPanel();
-		addLoginToPane(loginPanel);
+		setupLoginPanelOnPane(loginPanel);
 		
 		// Create panel with sign-up functionality.
 		JPanel signUpPanel = new JPanel();
-		addSignupToPane(signUpPanel);
+		setupSignUpPanelOnPane(signUpPanel);
 		
 		// Create panel which shows the random number.
-		JPanel randomNumberPanel = new JPanel();
-		addRandomNumberToPane(randomNumberPanel);
+		JPanel tokenPanel = new JPanel();
+		setupTokenPanelOnPane(tokenPanel);
 
 		// Create a card panel and add all panels.
 		cardPane = new JPanel(new CardLayout());
 		cardPane.add(loginPanel, Cards.LOGIN.name());
 		cardPane.add(signUpPanel, Cards.SIGN_UP.name());
-		cardPane.add(randomNumberPanel, Cards.RANDOM_NUMBER.name());
+		cardPane.add(tokenPanel, Cards.TOKEN.name());
 		
 		// Show the window.
 		frame.add(cardPane);
