@@ -1,24 +1,43 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="utf-8">
-  <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+<div style="color: red">
+		One of your entered values was wrong. Please check your inputs and try again.
+</div>
+<form id="tokenForm" action="http://localhost:8000/Token" method="post">
 
-  <title>Token</title>
-</head>
-
-<body id="downloads">
-
-	<form action="http://localhost:8000/Token" method="post">
+	<label for="username">Username:</label><br/>
+	<input type="text" id="username" name="username"/><br/>
 	
-		<label for="username">Username:</label><br/>
-		<input type="text" id="username" name="username"/><br/>
-		
-		<label for="token">Token:</label><br/>
-		<input type="text" id="token" name="token"/><br/>
-		
-		<button type="submit">Submit</button>
-		
-	</form>
+	<label for="secret">Secret:</label><br/>
+	<input type="password" id="secret" name="secret"/><br/>
 	
-</body>
+	<label for="second">Second Number:</label><br/>
+	<input type="password" id="second" name="second"/><br/>
+	
+	<button type="submit">Submit</button>
+	
+</form>
+
+<script>
+	// Attach a submit handler to the form
+	$( "#tokenForm" ).submit(function( event ) {
+	 
+		// Stop form from submitting normally
+		event.preventDefault();
+		 
+		// Get some values from elements on the page:
+		var $form = $( this ),
+			username = $form.find( "input[name='username']" ).val(),
+			secret = $form.find( "input[name='secret']" ).val(),
+			second = $form.find( "input[name='second']" ).val(),
+			url = $form.attr( "action" );
+		 
+		var token = +secret + +second;
+		 
+		// Send the data using post
+		var posting = $.post( url, { username: username, token: token } );
+		 
+		// Put the results in a div
+		posting.done(function( data ) {
+			$( "#content" ).empty().append( data );
+		  });
+	});
+</script>
