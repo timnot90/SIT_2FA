@@ -35,17 +35,26 @@ public class YADA {
 		new YADA().start();
 	}
 	
+	/**
+	 * Initializes the connection to the server and runs the GUI in a separate thread.
+	 */
 	public void start() {
 		initializeServerConnection();
 		runGuiInThread();
 	}
 	
+	/**
+	 * Initializes the connection to the server.
+	 */
 	private void initializeServerConnection() {
 		client = new Client();
 		client.connect();
 		client.initilizeKeyExchange();
 	}
 	
+	/**
+	 * Runs the GUI in its own thread.
+	 */
 	private void runGuiInThread() {
 		SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -54,12 +63,23 @@ public class YADA {
         });
 	}
 	
+	/**
+	 * Sets the properties for a textfield so that all textfields in the GUI look the same.
+	 * @param label is the text to be shown as a placeholder in the textfield.
+	 * @param inputField is the textfield the properties will be set on.
+	 */
 	private void setupInputField(String label, JTextField inputField) {
 		inputField.setColumns(10);
 		PromptSupport.setPrompt(label, inputField);
 		inputField.setMaximumSize(inputField.getPreferredSize());
 	}
 	
+	/**
+	 * Adds a fully configured password-textfield to a container.
+	 * @param label is the text to be shown as a placeholder in the password-textfield.
+	 * @param pane is the container the password-textfield will be added to.
+	 * @return a reference to the fully configured password-textfield.
+	 */
 	private JPasswordField addPasswordFieldToPane(String label, Container pane) {
 		JPasswordField pwField = new JPasswordField();
 		setupInputField(label, pwField);
@@ -67,6 +87,12 @@ public class YADA {
 		return (JPasswordField)addComponentToPane(pwField, pane);
 	}
 	
+	/**
+	 * Adds a fully configured textfield to a container.
+	 * @param label is the text to be shown as a placeholder in the textfield.
+	 * @param pane is the container the textfield will be added to.
+	 * @return a reference to the fully configured textfield.
+	 */
 	private JTextField addTextFieldToPane(String label, Container pane) {		
 		JTextField txtField = new JTextField();
 		setupInputField(label, txtField);
@@ -74,12 +100,24 @@ public class YADA {
 		return (JTextField)addComponentToPane(txtField, pane);
 	}
 	
+	/**
+	 * Adds a fully configured button to a container.
+	 * @param label is the text to be shown on the button.
+	 * @param pane is the container the button will be added to.
+	 * @return a reference to the fully configured button.
+	 */
 	private JButton addButtonToPane(String label, Container pane) {
 		JButton btn = new JButton(label);
 		
 		return (JButton)addComponentToPane(btn, pane);
 	}
 	
+	/**
+	 * Adds a fully configured headline to a container.
+	 * @param label is the text to be shown in the headline.
+	 * @param pane is the container the headline will be added to.
+	 * @return a reference to the fully configured headline.
+	 */
 	private JLabel addHeaderToPane(String label, Container pane) {
 		JLabel lblHeader = new JLabel(label);
 		lblHeader.setFont(new Font(Font.DIALOG, Font.BOLD, 24));
@@ -88,6 +126,12 @@ public class YADA {
 		return (JLabel) addComponentToPane(lblHeader, pane);
 	}
 	
+	/**
+	 * Adds any component to a container.
+	 * @param component is the component to be added to the container.
+	 * @param pane is the container the component will be added to.
+	 * @return a reference to the component added to the container.
+	 */
 	private JComponent addComponentToPane(JComponent component, Container pane) {
 		component.setAlignmentX(Component.CENTER_ALIGNMENT);
 		pane.add(component);
@@ -95,6 +139,10 @@ public class YADA {
 		return component;
 	}
 	
+	/**
+	 * Fully configures the panel where the user can log in and adds it to the specified container.
+	 * @param pane the container the fully configured panel should be added to.
+	 */
 	private void setupLoginPanelOnPane(Container pane) {
 		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
 		
@@ -128,6 +176,10 @@ public class YADA {
 		});
 	}
 
+	/**
+	 * Fully configures the panel where the token is shown to the user and adds it to the specified container.
+	 * @param pane the container the fully configured panel should be added to.
+	 */
 	private void setupTokenPanelOnPane(Container pane) {
 		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
 		
@@ -145,6 +197,10 @@ public class YADA {
 		});
 	}
 	
+	/**
+	 * Fully configures the panel where the user can create a new account and adds it to the specified container.
+	 * @param pane the container the fully configured panel should be added to.
+	 */
 	private void setupSignUpPanelOnPane(Container pane) {
 		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
 		
@@ -188,11 +244,18 @@ public class YADA {
 		});
 	}
 	
+	/**
+	 * Redraws the GUI to show a specified card.
+	 * @param card is the card to be shown on the GUI.
+	 */
 	private void showCard(Cards card) {
 		CardLayout cl = (CardLayout) (cardPane.getLayout());
 		cl.show(cardPane, card.name());
 	}
 	
+	/**
+	 * Creates and shows the GUI.
+	 */
 	private void createAndShowGui() {
 		// Set up the window.
 		JFrame frame = new JFrame();
@@ -228,7 +291,7 @@ public class YADA {
 		frame.add(cardPane);
 		frame.pack();
 		frame.setVisible(true);
-		frame.requestFocus();
+		frame.requestFocus(); // Needed to remove the focus from the first text input field.
 	}
 
 }
