@@ -4,19 +4,18 @@ import java.security.InvalidKeyException;
 
 import javax.crypto.SecretKey;
 
-import client.ClientConnetcion;
-import security.encryption.PasswordHash;
 import security.encryption.PublicKeyEncryption;
 import security.encryption.RSAEncryption;
 import security.keyExchange.DiffieHellmanKeyExchange;
 import security.keyExchange.KeyExchangeMethod;
+import client.ClientConnection;
 
 public class KeyExchangeAction {
 	private KeyExchangeMethod keyExchange;
-	private ClientConnetcion connection;
+	private ClientConnection connection;
 	private PublicKeyEncryption encryption;
 	
-	public KeyExchangeAction(ClientConnetcion connection) {
+	public KeyExchangeAction(ClientConnection connection) {
 		this.connection = connection;
 		this.keyExchange = new DiffieHellmanKeyExchange();
 	}
@@ -24,7 +23,7 @@ public class KeyExchangeAction {
 	public SecretKey doKeyExchange() {
 		SecretKey key = null;
 		
-		keyExchange.initilizeKeyExchange();
+		keyExchange.initializeKeyExchange();
 		String prime = ((DiffieHellmanKeyExchange) keyExchange).getPrime();
 		String base = ((DiffieHellmanKeyExchange) keyExchange).getBase();
 		String publicKey = keyExchange.getPublicKey();

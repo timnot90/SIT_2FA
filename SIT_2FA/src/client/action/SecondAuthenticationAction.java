@@ -4,14 +4,14 @@ import javax.crypto.SecretKey;
 
 import security.encryption.AESEncryption;
 import security.encryption.SymmetricEncryption;
-import client.ClientConnetcion;
+import client.ClientConnection;
 
-public class SecondAutenticationAction {
-	private ClientConnetcion connection;
+public class SecondAuthenticationAction {
+	private ClientConnection connection;
 	private SecretKey key;
 	private SymmetricEncryption symEncription;
 	
-	public SecondAutenticationAction(ClientConnetcion connection, SecretKey key) {
+	public SecondAuthenticationAction(ClientConnection connection, SecretKey key) {
 		this.connection = connection;
 		this.key = key;
 		this.symEncription = new AESEncryption();

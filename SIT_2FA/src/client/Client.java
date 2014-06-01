@@ -1,19 +1,22 @@
 package client;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.UnknownHostException;
-import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
 import javax.crypto.SecretKey;
 
-import client.action.*;
 import security.encryption.PasswordHash;
+import client.action.ExitAction;
+import client.action.GenerateTokenAction;
+import client.action.KeyExchangeAction;
+import client.action.LoginAction;
+import client.action.RegisterAction;
+import client.action.SecondAuthenticationAction;
 
 public class Client {
-	private ClientConnetcion connection;
+	private ClientConnection connection;
 	private PasswordHash paswordHash;
 	private int id;
 	private String username;
@@ -22,7 +25,7 @@ public class Client {
 	
 	public Client() {
 		try {
-			connection = new ClientConnetcion();
+			connection = new ClientConnection();
 			paswordHash = new PasswordHash();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -40,7 +43,7 @@ public class Client {
 	}
 
 	/**
-	 * recieve the client id from the server
+	 * receive the client id from the server
 	 * 
 	 * @return
 	 * 		: the client id
@@ -56,7 +59,7 @@ public class Client {
 	 * 2. message: base
 	 * 3. message: public key
 	 */
-	public void initilizeKeyExchange() {
+	public void initializeKeyExchange() {
 		this.key = new KeyExchangeAction(connection).doKeyExchange();
 	}
 
@@ -96,7 +99,7 @@ public class Client {
 	 * 		false - second authentication unsuccessful (timeout, secret did not match)
 	 */
 	public boolean checkForSecondAuthentication() {
-		boolean success = new SecondAutenticationAction(connection, key).checkSecondAuthentication(username);
+		boolean success = new SecondAuthenticationAction(connection, key).checkSecondAuthentication(username);
 		System.out.printf("2. autentication %s%n", success);
 		return success;
 	}

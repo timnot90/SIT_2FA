@@ -149,21 +149,21 @@ public class MySqlUserDataConnection implements UserDataInterface {
 	}
 
 	@Override
-	public LocalDateTime getExperationDate(String username) {
-		LocalDateTime experationDate = null;
-		String statement = "SELECT experationDate FROM users WHERE username= ? ;";
+	public LocalDateTime getExpirationDate(String username) {
+		LocalDateTime expirationDate = null;
+		String statement = "SELECT experationDate FROM users WHERE username= ? ;"; //TODO experationDate should be renamed to expirationDate!
 		try {
 			PreparedStatement userSelectionStatement =
 					connection.prepareStatement(statement);
 			userSelectionStatement.setString(1, username);
 			ResultSet rs = userSelectionStatement.executeQuery();
 			rs.next();
-			experationDate = LocalDateTime.parse(rs.getString("experationDate"));
+			expirationDate = LocalDateTime.parse(rs.getString("experationDate"));
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return experationDate;
+		return expirationDate;
 	}
 
 	public boolean isAuthenticatedWithToken(String username) {
@@ -244,7 +244,7 @@ public class MySqlUserDataConnection implements UserDataInterface {
 			userSelectionStatement.setString(1, username);
 			ResultSet rs = userSelectionStatement.executeQuery();
 			rs.next();
-			valid = (getExperationDate(username).isAfter(LocalDateTime.now()) && !rs.getBoolean("tokenUsed"));
+			valid = (getExpirationDate(username).isAfter(LocalDateTime.now()) && !rs.getBoolean("tokenUsed"));
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

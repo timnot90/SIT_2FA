@@ -5,15 +5,15 @@ import javax.crypto.SecretKey;
 import security.encryption.AESEncryption;
 import security.encryption.PasswordHash;
 import security.encryption.SymmetricEncryption;
-import client.ClientConnetcion;
+import client.ClientConnection;
 
 public class RegisterAction {
-	private ClientConnetcion connection;
+	private ClientConnection connection;
 	private PasswordHash passwordHash;
 	private SymmetricEncryption symEncription;
 	private SecretKey key;
 	
-	public RegisterAction(ClientConnetcion connection, SecretKey key) {
+	public RegisterAction(ClientConnection connection, SecretKey key) {
 		this.connection = connection;
 		this.key = key;
 		this.passwordHash = new PasswordHash();

@@ -8,7 +8,7 @@ import java.util.Base64.Encoder;
 
 import javax.crypto.Cipher;
 
-public class RSAEncryption implements PublicKeyEncryption{
+public class RSAEncryption implements PublicKeyEncryption {
 	private Encoder b64Encoder = Base64.getEncoder();
 	private Decoder b64Decoder = Base64.getDecoder();
 	

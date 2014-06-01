@@ -49,7 +49,7 @@ public class YADA {
 	private void initializeServerConnection() {
 		client = new Client();
 		client.connect();
-		client.initilizeKeyExchange();
+		client.initializeKeyExchange();
 	}
 	
 	/**

@@ -2,7 +2,6 @@ package server;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;

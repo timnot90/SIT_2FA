@@ -2,18 +2,18 @@ package client.action;
 
 import javax.crypto.SecretKey;
 
-import client.ClientConnetcion;
+import client.ClientConnection;
 import security.encryption.AESEncryption;
 import security.encryption.PasswordHash;
 import security.encryption.SymmetricEncryption;
 
 public class LoginAction {
 	private PasswordHash passwordHash;
-	private ClientConnetcion connection;
+	private ClientConnection connection;
 	private SecretKey key;
 	private SymmetricEncryption symEncription;
 	
-	public LoginAction(ClientConnetcion connection, SecretKey key) {
+	public LoginAction(ClientConnection connection, SecretKey key) {
 		this.connection = connection;
 		this.key = key;
 		this.passwordHash = new PasswordHash();

@@ -4,14 +4,14 @@ import javax.crypto.SecretKey;
 
 import security.encryption.AESEncryption;
 import security.encryption.SymmetricEncryption;
-import client.ClientConnetcion;
+import client.ClientConnection;
 
 public class GenerateTokenAction {
-	private ClientConnetcion connection;
+	private ClientConnection connection;
 	private SecretKey key;
 	private SymmetricEncryption symEncription;
 	
-	public GenerateTokenAction(ClientConnetcion connection, SecretKey key) {
+	public GenerateTokenAction(ClientConnection connection, SecretKey key) {
 		this.connection = connection;
 		this.key = key;
 		this.symEncription = new AESEncryption();

@@ -2,9 +2,7 @@ package server.action;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Random;
 
-import server.ClientThread;
 import data.MySqlUserDataConnection;
 
 public class GenerateTokenAction {

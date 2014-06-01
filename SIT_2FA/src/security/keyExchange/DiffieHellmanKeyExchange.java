@@ -48,7 +48,7 @@ public class DiffieHellmanKeyExchange implements KeyExchangeMethod {
 		this.g = new BigInteger(g);
 	}
 	
-	public void initilizeKeyExchange() {
+	public void initializeKeyExchange() {
 		DHParameterSpec params = new DHParameterSpec(p, g);
 		KeyPairGenerator kpg;
 		try {

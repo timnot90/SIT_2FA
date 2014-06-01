@@ -1,28 +1,17 @@
 package client.gui;
 
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
-
-import java.awt.Insets;
-
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
 
-import client.Client;
 import net.miginfocom.swing.MigLayout;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import client.Client;
 
 public class MainFrame extends JFrame {
 	private static final long serialVersionUID = 8849485016773981384L;
@@ -53,7 +42,7 @@ public class MainFrame extends JFrame {
 	private void initlizeEncryption() {
 		client = new Client();
 		System.out.printf("id: %d%n", client.connect());
-		client.initilizeKeyExchange();
+		client.initializeKeyExchange();
 	}
 	
 	/**

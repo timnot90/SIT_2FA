@@ -3,14 +3,14 @@ package client.action;
 import javax.crypto.SecretKey;
 
 import security.encryption.AESEncryption;
-import client.ClientConnetcion;
+import client.ClientConnection;
 
 public class ExitAction {
-	private ClientConnetcion connection;
+	private ClientConnection connection;
 	private SecretKey key;
 	private AESEncryption symEncription;
 
-	public ExitAction(ClientConnetcion connection, SecretKey key) {
+	public ExitAction(ClientConnection connection, SecretKey key) {
 		this.connection = connection;
 		this.key = key;
 		this.symEncription = new AESEncryption();

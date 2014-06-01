@@ -1,24 +1,17 @@
 package server.action;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
 
 import javax.crypto.SecretKey;
 
-import security.keyExchange.DiffieHellmanKeyExchange;
-import security.keyExchange.KeyExchangeMethod;
-
-import com.google.gson.Gson;
-
 import security.encryption.PublicKeyEncryption;
 import security.encryption.RSAEncryption;
+import security.keyExchange.DiffieHellmanKeyExchange;
+import security.keyExchange.KeyExchangeMethod;
 import server.ClientThread;
 
 public class KeyExchangeAction {
@@ -47,7 +40,7 @@ public class KeyExchangeAction {
 		readParameterForKeyExchange();
 
 		keyExchange = new DiffieHellmanKeyExchange(p, g);
-		keyExchange.initilizeKeyExchange();
+		keyExchange.initializeKeyExchange();
 		
 		client.sendSignedText(keyExchange.getPublicKey());
 		key = keyExchange.generateKey(publicKey.getBytes());		

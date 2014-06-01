@@ -7,7 +7,7 @@ public class Main {
 	private static void initializeClientEncryption(Client client) {
 		//client = new Client();
 		System.out.printf("id: %d%n", client.connect());
-		client.initilizeKeyExchange();
+		client.initializeKeyExchange();
 	}
 	
 	public static void main(String[] args) {

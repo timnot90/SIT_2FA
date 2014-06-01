@@ -11,17 +11,17 @@ import java.security.SecureRandom;
 
 import javax.crypto.SecretKey;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-
-import security.signature.RSASignature;
 import security.encryption.AESEncryption;
 import security.encryption.SymmetricEncryption;
+import security.signature.RSASignature;
 import server.action.GenerateTokenAction;
 import server.action.KeyExchangeAction;
 import server.action.LoginAction;
 import server.action.RegisterAction;
 import server.action.SecondAuthenticationAction;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 public class ClientThread extends Thread {
 

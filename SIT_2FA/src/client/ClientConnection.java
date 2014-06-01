@@ -11,17 +11,17 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 
-import com.google.gson.Gson;
-
+import security.encryption.PublicKeyEncryption;
+import security.encryption.RSAEncryption;
 import security.signature.RSASignature;
 import security.signature.SignatureMethod;
 import security.util.KeyUtils;
-import security.encryption.PublicKeyEncryption;
-import security.encryption.RSAEncryption;
 
-public class ClientConnetcion {
+import com.google.gson.Gson;
 
-	private String serverAdress = "127.0.0.1";
+public class ClientConnection {
+
+	private String serverAddress = "127.0.0.1";
 	private int serverPort = 2020;
 	private Socket clientSocket;
 	private SignatureMethod signature;
@@ -37,27 +37,27 @@ public class ClientConnetcion {
 	private String publicKeyPath = "src" + File.separator + "client"
 			+ File.separator + "public.key";
 	
-	public ClientConnetcion() throws UnknownHostException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+	public ClientConnection() throws UnknownHostException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		pubK = KeyUtils.loadPublicKey(publicKeyPath, algorithm);
-		clientSocket = new Socket(serverAdress, serverPort);
+		clientSocket = new Socket(serverAddress, serverPort);
 		signature = new RSASignature();
 		encryption = new RSAEncryption();
 		gson = new Gson();
 		openConnectionStreams();
 	}
 	
-	public ClientConnetcion(String serverAdress, int serverPort) {
+	public ClientConnection(String serverAddress, int serverPort) {
 		try {
-			clientSocket = new Socket(serverAdress, serverPort);
+			clientSocket = new Socket(serverAddress, serverPort);
 		} catch (UnknownHostException e) {
-			System.err.println("Coul not find Server " + serverAdress);
+			System.err.println("Coul not find Server " + serverAddress);
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		openConnectionStreams();
-		this.serverAdress = serverAdress;
+		this.serverAddress = serverAddress;
 		this.serverPort = serverPort;
 	}
 
