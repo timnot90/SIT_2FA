@@ -135,6 +135,14 @@ public class YADA {
 		
 		txtToken = addTextFieldToPane("Error: No Token.", pane);
 		txtToken.setEditable(false);
+		
+		addButtonToPane("Request new token", pane).addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				txtToken.setText(client.generateToken());
+			}
+		});
 	}
 	
 	private void setupSignUpPanelOnPane(Container pane) {
