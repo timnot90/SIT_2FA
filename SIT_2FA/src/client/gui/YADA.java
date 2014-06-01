@@ -29,7 +29,7 @@ enum Cards {LOGIN, SIGN_UP, TOKEN};
 public class YADA {
 	Client client;
 	JPanel cardPane;
-	JLabel lblToken;
+	JTextField txtToken;
 
 	public static void main(String[] args) {
 		new YADA().start();
@@ -111,7 +111,7 @@ public class YADA {
 				
 				if (loggedIn) {
 					System.out.println("logged in");
-					lblToken.setText(client.generateToken());
+					txtToken.setText(client.generateToken());
 					showCard(Cards.TOKEN);
 				} else {
 					System.out.println("invalid username/password");
@@ -133,8 +133,8 @@ public class YADA {
 		
 		addHeaderToPane("Token", pane);
 		
-		lblToken = new JLabel("Error: No Token to display.");
-		addComponentToPane(lblToken, pane);
+		txtToken = addTextFieldToPane("Error: No Token.", pane);
+		txtToken.setEditable(false);
 	}
 	
 	private void setupSignUpPanelOnPane(Container pane) {
