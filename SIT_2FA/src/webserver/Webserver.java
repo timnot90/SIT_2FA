@@ -12,8 +12,11 @@ public class Webserver {
 	public static void main(String[] args) throws Exception {
 		HttpServer server = HttpServer.create(new InetSocketAddress(WEBSERVER_PORT), 0);
 		
-		HttpContext context = server.createContext("/Token", new TokenHandler());
-        context.getFilters().add(new ParameterFilter());
+		ParameterFilter parameterFilter = new ParameterFilter();
+		TokenHandler tokenHandler = new TokenHandler();
+		
+		server.createContext("/Token", tokenHandler).getFilters().add(parameterFilter);
+		server.createContext("/token", tokenHandler).getFilters().add(parameterFilter);
         
         server.setExecutor(null); // creates a default executor
         server.start();
