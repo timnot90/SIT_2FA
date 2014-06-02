@@ -10,6 +10,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -24,7 +25,7 @@ import org.jdesktop.swingx.prompt.PromptSupport;
 
 import client.Client;
 
-enum Cards {LOGIN, SIGN_UP, TOKEN};
+enum Cards {LOGIN, SIGN_UP, TOKEN, MAIN};
 
 public class YADA {
 	Client client;
@@ -121,7 +122,7 @@ public class YADA {
 	private JLabel addHeaderToPane(String label, Container pane) {
 		JLabel lblHeader = new JLabel(label);
 		lblHeader.setFont(new Font(Font.DIALOG, Font.BOLD, 24));
-		lblHeader.setBorder(new EmptyBorder(15, 0, 15, 0)); // t, r, b, l
+		lblHeader.setBorder(new EmptyBorder(15, 15, 15, 15)); // t, r, b, l
 		
 		return (JLabel) addComponentToPane(lblHeader, pane);
 	}
@@ -245,6 +246,22 @@ public class YADA {
 	}
 	
 	/**
+	 * Fully configures the panel which is shown to the user after a successful login and adds it to the specified container.
+	 * @param pane the container the fully configured panel should be added to.
+	 */
+	private void setupMainPanelOnPane(Container pane) {
+		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
+		
+		addHeaderToPane("Login Successful", pane);
+		
+		// Add a fancy clown to the container :o)
+		JLabel imageLabel = new JLabel();
+		imageLabel.setIcon(new ImageIcon(this.getClass().getResource("clown.gif")));
+		imageLabel.setBorder(new EmptyBorder(0, 15, 15, 15)); // t, r, b, l
+		addComponentToPane(imageLabel, pane);
+	}
+	
+	/**
 	 * Redraws the GUI to show a specified card.
 	 * @param card is the card to be shown on the GUI.
 	 */
@@ -277,15 +294,20 @@ public class YADA {
 		JPanel signUpPanel = new JPanel();
 		setupSignUpPanelOnPane(signUpPanel);
 		
-		// Create panel which shows the random number.
+		// Create panel which shows the token from the server.
 		JPanel tokenPanel = new JPanel();
 		setupTokenPanelOnPane(tokenPanel);
+		
+		// Create panel which is shown after successful login.
+		JPanel mainPanel = new JPanel();
+		setupMainPanelOnPane(mainPanel);
 
 		// Create a card panel and add all panels.
 		cardPane = new JPanel(new CardLayout());
 		cardPane.add(loginPanel, Cards.LOGIN.name());
 		cardPane.add(signUpPanel, Cards.SIGN_UP.name());
 		cardPane.add(tokenPanel, Cards.TOKEN.name());
+		cardPane.add(mainPanel, Cards.MAIN.name());
 		
 		// Show the window.
 		frame.add(cardPane);
