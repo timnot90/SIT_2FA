@@ -1,6 +1,7 @@
 package data;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -148,6 +149,43 @@ public class MySqlUserDataConnection implements UserDataInterface {
 		return token;
 	}
 
+	@Override
+	public Date getTokenExpirationDate(String username) {
+		String expirationDate = "";
+		String statement = "SELECT experationDate FROM users WHERE username= ? ;";
+		try {
+			PreparedStatement userSelectionStatement =
+					connection.prepareStatement(statement);
+			userSelectionStatement.setString(1, username);
+			ResultSet rs = userSelectionStatement.executeQuery();
+			rs.next();
+			expirationDate = rs.getString("experationDate");
+			return rs.getDate("experationDate");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+
+	public String getSecret(String username) {
+		String secret = "";
+		String statement = "SELECT secret FROM users WHERE username= ? ;";
+		try {
+			PreparedStatement userSelectionStatement =
+					connection.prepareStatement(statement);
+			userSelectionStatement.setString(1, username);
+			ResultSet rs = userSelectionStatement.executeQuery();
+			rs.next();
+			secret = rs.getString("secret");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return secret;
+	}
+	
 	@Override
 	public LocalDateTime getExpirationDate(String username) {
 		LocalDateTime expirationDate = null;

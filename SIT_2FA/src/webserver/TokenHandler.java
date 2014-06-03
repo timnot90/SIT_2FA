@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -38,16 +40,24 @@ public class TokenHandler implements HttpHandler {
 
 		if (requestMethod.equals("POST")) {
 
-			Map params = (Map) httpExchange.getAttribute("parameters");
+			Map<String, String> params = (Map<String, String>) httpExchange.getAttribute("parameters");
 
 			String username = params.get("username").toString();
-			String sentToken = params.get("token").toString();
+			String receivedToken = params.get("token").toString();
 
-			String expectedToken = db.getToken(username);
-
-			if (sentToken.equals(expectedToken)) {
-				sendHtml(httpExchange, "tokenOk.html");
-				db.setIsAuthenticatedWithToken(username, true);
+			Integer randomNumber = Integer.parseInt(db.getToken(username));
+			Integer secret = Integer.parseInt(db.getSecret(username));
+			String expectedToken = ((Integer)(randomNumber + secret)).toString();
+			
+			LocalDateTime expirationDate = db.getExpirationDate(username);
+			
+			// check if the token is still valid
+			if(expirationDate.isAfter(LocalDateTime.now())) {
+				if (receivedToken.equals(expectedToken)) {
+					sendHtml(httpExchange, "tokenOk.html");
+					db.setIsAuthenticatedWithToken(username, true);
+				} else {
+				}
 			} else {
 				sendHtml(httpExchange, "tokenFalse.html");
 			}

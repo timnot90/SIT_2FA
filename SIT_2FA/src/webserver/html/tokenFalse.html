@@ -1,5 +1,6 @@
 <div style="color: red">
-		One of your entered values was wrong. Please check your inputs and try again.
+		One of your entered values was wrong or the valid time of your random number expired. <br/>
+		Please check your inputs and try again.
 </div>
 <form id="tokenForm" action="http://localhost:8000/Token" method="post">
 
@@ -9,8 +10,8 @@
 	<label for="secret">Secret:</label><br/>
 	<input type="password" id="secret" name="secret"/><br/>
 	
-	<label for="second">Second Number:</label><br/>
-	<input type="password" id="second" name="second"/><br/>
+	<label for="random">Random Number:</label><br/>
+	<input type="password" id="random" name="random"/><br/>
 	
 	<button type="submit">Submit</button>
 	
@@ -27,10 +28,10 @@
 		var $form = $( this ),
 			username = $form.find( "input[name='username']" ).val(),
 			secret = $form.find( "input[name='secret']" ).val(),
-			second = $form.find( "input[name='second']" ).val(),
+			random = $form.find( "input[name='random']" ).val(),
 			url = $form.attr( "action" );
 		 
-		var token = +secret + +second;
+		var token = +secret + +random;
 		 
 		// Send the data using post
 		var posting = $.post( url, { username: username, token: token } );

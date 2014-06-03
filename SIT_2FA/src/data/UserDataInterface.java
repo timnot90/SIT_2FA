@@ -1,5 +1,6 @@
 package data;
 
+import java.sql.Date;
 import java.time.LocalDateTime;
 
 public interface UserDataInterface {
@@ -14,6 +15,8 @@ public interface UserDataInterface {
 	public String getPassword(String username);
 	public String getSalt(String username);
 	public String getToken(String username);
+	public Date getTokenExpirationDate(String username);
+	public String getSecret(String username);
 	public LocalDateTime getExpirationDate(String username);
 	public boolean isAuthenticatedWithToken(String username);
 }
