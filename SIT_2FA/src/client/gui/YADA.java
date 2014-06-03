@@ -25,7 +25,7 @@ import org.jdesktop.swingx.prompt.PromptSupport;
 
 import client.Client;
 
-enum Cards {LOGIN, SIGN_UP, TOKEN, MAIN};
+enum Cards {LOGIN, SIGN_UP, TOKEN, MAIN, TOKEN_TIMEOUT};
 
 public class YADA {
 	Client client;
@@ -159,11 +159,11 @@ public class YADA {
 				boolean loggedIn = client.login(txtUsername.getText().toLowerCase(), new String(txtPassword.getPassword()));
 				
 				if (loggedIn) {
-					System.out.println("logged in");
+					System.out.println("login from desktop successful");
 					txtToken.setText(client.generateToken());
 					showCard(Cards.TOKEN);
 				} else {
-					System.out.println("invalid username/password");
+					System.out.println("login from desktop failed: invalid username or password");
 				}
 			}
 		});
@@ -173,27 +173,6 @@ public class YADA {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				showCard(Cards.SIGN_UP);
-			}
-		});
-	}
-
-	/**
-	 * Fully configures the panel where the token is shown to the user and adds it to the specified container.
-	 * @param pane the container the fully configured panel should be added to.
-	 */
-	private void setupTokenPanelOnPane(Container pane) {
-		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
-		
-		addHeaderToPane("Token", pane);
-		
-		txtToken = addTextFieldToPane("Error: No Token.", pane);
-		txtToken.setEditable(false);
-		
-		addButtonToPane("Request new token", pane).addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				txtToken.setText(client.generateToken());
 			}
 		});
 	}
@@ -236,11 +215,59 @@ public class YADA {
 				boolean registered = client.register(txtUsername.getText().toLowerCase(), new String(txtPassword.getPassword()), txtSecret.getText().toLowerCase());
 				
 				if (registered) {
-					System.out.println("registered");
+					System.out.println("registration from desktop successful");
 					showCard(Cards.LOGIN);
 				} else {
-					System.out.println("registration failed");
+					System.out.println("registration from desktop failed");
 				}
+			}
+		});
+	}
+
+	/**
+	 * Fully configures the panel where the token is shown to the user and adds it to the specified container.
+	 * @param pane the container the fully configured panel should be added to.
+	 */
+	private void setupTokenPanelOnPane(Container pane) {
+		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
+		
+		addHeaderToPane("Token", pane);
+		
+		txtToken = addTextFieldToPane("Error: No Token.", pane);
+		txtToken.setEditable(false);
+		
+		// Wait for second authentication.
+		addButtonToPane("Check for second authentication", pane).addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(client.checkForSecondAuthentication()) {
+					showCard(Cards.MAIN);
+				} else {
+					showCard(Cards.TOKEN_TIMEOUT);
+				}
+			}
+		});
+	}
+	
+	/**
+	 * Fully configures the panel where the user can request a new token after the second authentication timed out to the specified container.
+	 * @param pane the container the fully configured panel should be added to.
+	 */
+	private void setupTokenTimeoutPanelOnPane(Container pane) {
+		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
+		
+		addHeaderToPane("Login Failed", pane);
+		
+		// Give the user a description of what went wrong.
+		addComponentToPane(new JLabel("<html>Second authentication timed out.<br>Request a new token and try again.</html>", JLabel.CENTER), pane);
+		
+		addButtonToPane("Request new token", pane).addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				txtToken.setText(client.generateToken());
+				showCard(Cards.TOKEN);
 			}
 		});
 	}
@@ -298,6 +325,10 @@ public class YADA {
 		JPanel tokenPanel = new JPanel();
 		setupTokenPanelOnPane(tokenPanel);
 		
+		// Create a panel which is shown if the second authentication times out.
+		JPanel tokenTimeoutPanel = new JPanel();
+		setupTokenTimeoutPanelOnPane(tokenTimeoutPanel);
+		
 		// Create panel which is shown after successful login.
 		JPanel mainPanel = new JPanel();
 		setupMainPanelOnPane(mainPanel);
@@ -307,6 +338,7 @@ public class YADA {
 		cardPane.add(loginPanel, Cards.LOGIN.name());
 		cardPane.add(signUpPanel, Cards.SIGN_UP.name());
 		cardPane.add(tokenPanel, Cards.TOKEN.name());
+		cardPane.add(tokenTimeoutPanel, Cards.TOKEN_TIMEOUT.name());
 		cardPane.add(mainPanel, Cards.MAIN.name());
 		
 		// Show the window.
