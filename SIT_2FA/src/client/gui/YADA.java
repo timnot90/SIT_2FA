@@ -241,11 +241,7 @@ public class YADA {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(client.checkForSecondAuthentication()) {
-					showCard(Cards.MAIN);
-				} else {
-					showCard(Cards.TOKEN_TIMEOUT);
-				}
+				checkForSecondAuthentication();
 			}
 		});
 	}
@@ -346,6 +342,17 @@ public class YADA {
 		frame.pack();
 		frame.setVisible(true);
 		frame.requestFocus(); // Needed to remove the focus from the first text input field.
+	}
+	
+	/**
+	 * Waits for a server response to see if the second authentication was successful and updates the GUI accordingly.
+	 */
+	private void checkForSecondAuthentication() {
+		if(client.checkForSecondAuthentication()) {
+			showCard(Cards.MAIN);
+		} else {
+			showCard(Cards.TOKEN_TIMEOUT);
+		}
 	}
 
 }
