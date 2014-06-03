@@ -1,6 +1,7 @@
 package client.gui;
 
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
@@ -12,7 +13,6 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -36,9 +36,10 @@ enum Cards {
 };
 
 public class YADA {
-	Client client;
-	JPanel cardPane;
-	JTextField txtToken;
+	private Client client;
+	private JPanel cardPane;
+	private JTextField txtToken;
+	private JLabel lblLoginFailed;
 
 	public static void main(String[] args) {
 		new YADA().start();
@@ -154,6 +155,24 @@ public class YADA {
 	}
 
 	/**
+	 * Adds a fully configured label to a container.
+	 * 
+	 * @param label
+	 *            is the text to be shown on the label.
+	 * @param pane
+	 *            is the container the label will be added to.
+	 * @return a reference to the fully configured label.
+	 */
+	private JLabel addLabelToPane(String label, Container pane) {
+		String htmlString = "<html>" + label + "</html>";
+		htmlString = htmlString.replaceAll("(\r\n|\n)", "<br/>");
+		JLabel lblText = new JLabel(htmlString, JLabel.CENTER);
+		lblText.setBorder(new EmptyBorder(0, 15, 15, 15)); // t, r, b, l)
+
+		return (JLabel) addComponentToPane(lblText, pane);
+	}
+
+	/**
 	 * Adds any component to a container.
 	 * 
 	 * @param component
@@ -180,6 +199,10 @@ public class YADA {
 		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
 
 		addHeaderToPane("Login", pane);
+		
+		lblLoginFailed = addLabelToPane("Wrong username or password.\nPlease try again.", pane);
+		lblLoginFailed.setForeground(Color.RED);
+		lblLoginFailed.setVisible(false);
 
 		JTextField txtUsername = addTextFieldToPane("Username", pane);
 		JPasswordField txtPassword = addPasswordFieldToPane("Password", pane);
@@ -193,13 +216,11 @@ public class YADA {
 
 				if (loggedIn) {
 					System.out.println("login from desktop successful");
-					txtToken.setText(client.generateToken());
 					showCard(Cards.TOKEN);
-					openUrl("http://localhost:8000/token");
-					checkForSecondAuthentication();
 				} else {
 					System.out
 							.println("login from desktop failed: invalid username or password");
+					lblLoginFailed.setVisible(true);
 				}
 			}
 		});
@@ -277,19 +298,12 @@ public class YADA {
 		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
 
 		addHeaderToPane("Token", pane);
+		addLabelToPane(
+				"Copy the token below and paste it\non the website that just opened.",
+				pane);
 
 		txtToken = addTextFieldToPane("Error: No Token.", pane);
 		txtToken.setEditable(false);
-
-		// Wait for second authentication.
-/*		addButtonToPane("Check for second authentication", pane)
-				.addActionListener(new ActionListener() {
-
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						checkForSecondAuthentication();
-					}
-				});*/
 	}
 
 	/**
@@ -303,19 +317,15 @@ public class YADA {
 		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
 
 		addHeaderToPane("Login Failed", pane);
-
-		// Give the user a description of what went wrong.
-		addComponentToPane(
-				new JLabel(
-						"<html>Second authentication timed out.<br>Request a new token and try again.</html>",
-						JLabel.CENTER), pane);
+		addLabelToPane(
+				"Second authentication timed out.\nRequest a new token and try again.",
+				pane);
 
 		addButtonToPane("Request new token", pane).addActionListener(
 				new ActionListener() {
 
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						txtToken.setText(client.generateToken());
 						showCard(Cards.TOKEN);
 					}
 				});
@@ -348,6 +358,13 @@ public class YADA {
 	 *            is the card to be shown on the GUI.
 	 */
 	private void showCard(Cards card) {
+		// Special case: Token card needs additional setup.
+		if (card.name().equals(Cards.TOKEN.name())) {
+			txtToken.setText(client.generateToken());
+			openUrlInExternalWebBrowser("http://localhost:8000/token");
+			new AsyncSecondAuthenticationChecker().execute();
+		}
+
 		CardLayout cl = (CardLayout) (cardPane.getLayout());
 		cl.show(cardPane, card.name());
 	}
@@ -406,23 +423,12 @@ public class YADA {
 	}
 
 	/**
-	 * Waits for a server response to see if the second authentication was
-	 * successful and updates the GUI accordingly.
-	 */
-	private void checkForSecondAuthentication() {
-		/*
-		 * if (client.checkForSecondAuthentication()) { showCard(Cards.MAIN); }
-		 * else { showCard(Cards.TOKEN_TIMEOUT); }
-		 */
-		SecondAuthChecker checker = new SecondAuthChecker();
-		checker.execute();
-	}
-
-	/**
-	 * start the default browser and open the url
+	 * Opens the given URL in the default web browser.
+	 * 
 	 * @param url
+	 *            the URL to be opened.
 	 */
-	private void openUrl(String url) {
+	private void openUrlInExternalWebBrowser(String url) {
 		if (java.awt.Desktop.isDesktopSupported()) {
 			Desktop desktop = Desktop.getDesktop();
 
@@ -440,37 +446,23 @@ public class YADA {
 		}
 	}
 
-	// SwingWorker class is used to simulate a task being performed
-	class SecondAuthChecker extends SwingWorker<Void, String> {
+	/**
+	 * Runs a background thread which waits for a server response to see if the
+	 * second authentication was successful and updates the GUI accordingly.
+	 */
+	private class AsyncSecondAuthenticationChecker extends
+			SwingWorker<Void, Void> {
 
 		@Override
-		public Void doInBackground() throws InterruptedException {
+		protected Void doInBackground() throws Exception {
 			if (client.checkForSecondAuthentication()) {
-				publish("Auth OK");
+				showCard(Cards.MAIN);
 			} else {
-				publish("Auth Fail");
+				showCard(Cards.TOKEN_TIMEOUT);
 			}
-
 			return null;
 		}
 
-		@Override
-		protected void process(List<String> result) {
-			for (String string : result) {
-				if (string.equals("Auth OK")) {
-					showCard(Cards.MAIN);
-				}
-				if (string.equals("Auth Fail")) {
-					showCard(Cards.TOKEN_TIMEOUT);
-				}
-			}
-		}
-
-		// when the 'task' has finished
-		@Override
-		public void done() {
-
-		}
 	}
 
 }
