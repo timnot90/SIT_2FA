@@ -196,6 +196,7 @@ public class YADA {
 					txtToken.setText(client.generateToken());
 					showCard(Cards.TOKEN);
 					openUrl("http://localhost:8000/token");
+					checkForSecondAuthentication();
 				} else {
 					System.out
 							.println("login from desktop failed: invalid username or password");
@@ -281,14 +282,14 @@ public class YADA {
 		txtToken.setEditable(false);
 
 		// Wait for second authentication.
-		addButtonToPane("Check for second authentication", pane)
+/*		addButtonToPane("Check for second authentication", pane)
 				.addActionListener(new ActionListener() {
 
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						checkForSecondAuthentication();
 					}
-				});
+				});*/
 	}
 
 	/**
