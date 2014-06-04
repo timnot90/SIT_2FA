@@ -2,9 +2,6 @@ package server.action;
 
 import java.math.BigInteger;
 import java.security.PrivateKey;
-import java.util.Base64;
-import java.util.Base64.Decoder;
-import java.util.Base64.Encoder;
 
 import javax.crypto.SecretKey;
 
@@ -25,9 +22,6 @@ public class KeyExchangeAction {
 	private String publicKey;
 
 	private ClientThread client;
-	
-	private Encoder b64Encoder = Base64.getEncoder();
-	private Decoder b64Decoder = Base64.getDecoder();
 
 	public KeyExchangeAction(PrivateKey pk, ClientThread client) {
 		this.privateKey = pk;

@@ -17,6 +17,7 @@ import client.action.SecondAuthenticationAction;
 
 public class Client {
 	private ClientConnection connection;
+	@SuppressWarnings("unused")
 	private PasswordHash paswordHash;
 	private int id;
 	private String username;

@@ -14,12 +14,9 @@ public class Server {
 	private ServerSocket socketService;
 	private int clientID = 0;
 
-	private String algorithm = "RSA";
-	private int bit = 4096;
+	private String algorithm = "RSA"; // 4096 bit
 	private String privateKeyPath = "src" + File.separator + "server"
 			+ File.separator + "private.key";
-	private String publicKeyPath = "src" + File.separator + "server"
-			+ File.separator + "public.key";
 
 	private PrivateKey pk;
 

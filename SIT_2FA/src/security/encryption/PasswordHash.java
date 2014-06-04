@@ -29,7 +29,7 @@ public class PasswordHash {
 		byte[] hash = null;
 		MessageDigest digest;
 		try {
-			digest = MessageDigest.getInstance("SHA-1");
+			digest = MessageDigest.getInstance("SHA-256");
 			digest.reset();
 			digest.update(b64Decoder.decode(salt));
 			hash = digest.digest(password.getBytes("UTF-8"));
