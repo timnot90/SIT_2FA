@@ -1,177 +1,468 @@
 package client.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Desktop;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
+
+import org.jdesktop.swingx.prompt.PromptSupport;
 
 import client.Client;
 
-public class DesktopApp implements ActionListener {
+enum Cards {
+	LOGIN, SIGN_UP, TOKEN, MAIN, TOKEN_TIMEOUT
+};
+
+public class DesktopApp {
 	private Client client;
-	JPanel cards; // a panel that uses CardLayout
-	final static String LOGIN_CREATE_PANEL = "Card login and create user";
-	final static String MAIN_PANEL = "Card after succesfull login";
-	
-	JPasswordField userPwField;
-	JTextField userNameField;
-	
-	public DesktopApp(Client client) {
-		this.client = client;
+	private JPanel cardPane;
+	private JTextField txtToken;
+	private JLabel lblLoginFailed;
+
+	public static void main(String[] args) {
+		new DesktopApp().start();
 	}
 
-	public void addComponentToPane(Container pane) {
-		// Create the "cards".
-		// --------------------------------------------
-		
-		Box login_createCard = new Box(BoxLayout.Y_AXIS);
-
-		Dimension sizeOfContainerPanel = new Dimension(220, 160);
-
-		JPanel containerPanel = new JPanel();
-		containerPanel.setLayout(new BoxLayout(containerPanel, BoxLayout.Y_AXIS));
-		containerPanel.setPreferredSize(sizeOfContainerPanel);
-		containerPanel.setMaximumSize(sizeOfContainerPanel);
-		containerPanel.setMinimumSize(sizeOfContainerPanel);
-
-		userNameField = new JTextField(5);
-		userNameField.setHorizontalAlignment(JTextField.CENTER);
-		JLabel userNameLabel = new JLabel("Benutzername");
-		userNameLabel.setLabelFor(userNameField);
-		userNameLabel.setFont(userNameLabel.getFont().deriveFont(14.0f));
-		userNameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-		userPwField = new JPasswordField(5);
-		userPwField.setHorizontalAlignment(JPasswordField.CENTER);
-		// userPwField.setActionCommand(OK);
-		// userPwField.addActionListener(this);
-
-		JLabel userPwLabel = new JLabel("Password");
-		userPwLabel.setLabelFor(userPwField);
-		userPwLabel.setFont(userPwLabel.getFont().deriveFont(14.0f));
-		userPwLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-		JPanel btnPanel = new JPanel(new BorderLayout());
-		
-		JButton createUserBtn = new JButton("SignUp");
-		createUserBtn.setActionCommand("create");
-		
-		JButton loginUserBtn = new JButton("SignIn");
-		loginUserBtn.setActionCommand("login");
-		
-		createUserBtn.addActionListener(this);
-		loginUserBtn.addActionListener(this);
-
-		btnPanel.add(createUserBtn, BorderLayout.WEST);
-		btnPanel.add(loginUserBtn, BorderLayout.EAST);
-
-		containerPanel.add(userNameLabel);
-		containerPanel.add(userNameField);
-		containerPanel.add(Box.createRigidArea(new Dimension(0, 5)));
-		containerPanel.add(userPwLabel);
-		containerPanel.add(userPwField);
-		containerPanel.add(Box.createRigidArea(new Dimension(0, 5)));
-		containerPanel.add(btnPanel);
-		containerPanel.add(Box.createRigidArea(new Dimension(0, 5)));
-
-		login_createCard.add(Box.createVerticalStrut(125));
-		login_createCard.add(containerPanel);
-		login_createCard.add(Box.createVerticalGlue());
-		
-		// --------------------------------------------
-		
-		Box mainCard = new Box(BoxLayout.Y_AXIS);
-		JPanel containerMainPanel = new JPanel();
-		containerMainPanel.setLayout(new BoxLayout(containerMainPanel, BoxLayout.Y_AXIS));
-		containerMainPanel.setBackground(Color.black);
-		
-		JLabel randomNumerLabel = new JLabel("Zufallszahl:");
-		randomNumerLabel.setFont(randomNumerLabel.getFont().deriveFont(18.0f));
-		randomNumerLabel.setForeground(Color.white);
-		randomNumerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-		
-		EmptyBorder eBorder = new EmptyBorder(5, 0, 5, 0); // oben, rechts, unten, links
-		randomNumerLabel.setBorder(eBorder); 
-
-		JLabel randomNumerOutput = new JLabel("000000");
-		randomNumerOutput.setFont(randomNumerOutput.getFont().deriveFont(35.0f));
-		randomNumerOutput.setForeground(Color.white);
-		randomNumerOutput.setAlignmentX(Component.CENTER_ALIGNMENT);
-		
-		eBorder = new EmptyBorder(10, 10, 10, 10); // oben, rechts, unten, links
-		randomNumerOutput.setBorder(eBorder); 
-		
-		containerMainPanel.add(randomNumerLabel);
-		containerMainPanel.add(randomNumerOutput);
-		
-		mainCard.add(Box.createVerticalStrut(200));
-		mainCard.add(containerMainPanel);
-		mainCard.add(Box.createVerticalGlue());
-
-		// --------------------------------------------
-		// Create the panel that contains the "cards".
-		cards = new JPanel(new CardLayout());
-		cards.add(login_createCard, LOGIN_CREATE_PANEL);
-		cards.add(mainCard, MAIN_PANEL);
-
-		pane.add(cards, BorderLayout.CENTER);
-	}
-	
-	public void actionPerformed(ActionEvent e) {
-        if ("login".equals(e.getActionCommand())) {
-        	boolean loggedIn = client.login(userNameField.getText(), new String(userPwField.getPassword()));
-			if(loggedIn) {
-				System.out.println("logged in");
-				CardLayout cl = (CardLayout) (cards.getLayout());
-	    		cl.show(cards, MAIN_PANEL);
-			} else {
-				System.out.println("invalid username/password");
-			}
-        } else if ("create".equals(e.getActionCommand())){
-            boolean registered = client.register(userNameField.getText(), new String(userPwField.getPassword()), "tbd");
-            if(registered) {
-            	System.out.println("registered");
-            } else {
-            	System.out.println("registration failed");
-            }
-        }
-    }
-	
 	/**
-	 * Create the GUI and show it. For thread safety, this method should be
-	 * invoked from the event dispatch thread.
+	 * Initializes the connection to the server and runs the GUI in a separate
+	 * thread.
 	 */
-	private void createAndShowGUI() {
-		// Create and set up the window.
-		JFrame frame = new JFrame("Desktop App");
-		frame.setPreferredSize(new Dimension(400, 500));
-		frame.setResizable(false);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		// Create and set up the content pane.
-		//DesktopApp demo = new DesktopApp();
-		addComponentToPane(frame.getContentPane());
-
-		// Display the window.
-		frame.pack();
-		frame.setVisible(true);
+	public void start() {
+		initializeServerConnection();
+		runGuiInThread();
 	}
-	
-	public void startGui() {		
-		/* Turn off metal's use of bold fonts */
-		//UIManager.put("swing.boldMetal", Boolean.FALSE);
-		try {
-			UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-		} catch (ClassNotFoundException | InstantiationException
-				| IllegalAccessException | UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
-		}
 
+	/**
+	 * Initializes the connection to the server.
+	 */
+	private void initializeServerConnection() {
+		client = new Client();
+		client.connect();
+		client.initializeKeyExchange();
+	}
+
+	/**
+	 * Runs the GUI in its own thread.
+	 */
+	private void runGuiInThread() {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				createAndShowGUI();
+				createAndShowGui();
 			}
 		});
 	}
+
+	/**
+	 * Sets the properties for a textfield so that all textfields in the GUI
+	 * look the same.
+	 * 
+	 * @param label
+	 *            is the text to be shown as a placeholder in the textfield.
+	 * @param inputField
+	 *            is the textfield the properties will be set on.
+	 */
+	private void setupInputField(String label, JTextField inputField) {
+		inputField.setColumns(10);
+		PromptSupport.setPrompt(label, inputField);
+		inputField.setMaximumSize(inputField.getPreferredSize());
+	}
+
+	/**
+	 * Adds a fully configured password-textfield to a container.
+	 * 
+	 * @param label
+	 *            is the text to be shown as a placeholder in the
+	 *            password-textfield.
+	 * @param pane
+	 *            is the container the password-textfield will be added to.
+	 * @return a reference to the fully configured password-textfield.
+	 */
+	private JPasswordField addPasswordFieldToPane(String label, Container pane) {
+		JPasswordField pwField = new JPasswordField();
+		setupInputField(label, pwField);
+
+		return (JPasswordField) addComponentToPane(pwField, pane);
+	}
+
+	/**
+	 * Adds a fully configured textfield to a container.
+	 * 
+	 * @param label
+	 *            is the text to be shown as a placeholder in the textfield.
+	 * @param pane
+	 *            is the container the textfield will be added to.
+	 * @return a reference to the fully configured textfield.
+	 */
+	private JTextField addTextFieldToPane(String label, Container pane) {
+		JTextField txtField = new JTextField();
+		setupInputField(label, txtField);
+
+		return (JTextField) addComponentToPane(txtField, pane);
+	}
+
+	/**
+	 * Adds a fully configured button to a container.
+	 * 
+	 * @param label
+	 *            is the text to be shown on the button.
+	 * @param pane
+	 *            is the container the button will be added to.
+	 * @return a reference to the fully configured button.
+	 */
+	private JButton addButtonToPane(String label, Container pane) {
+		JButton btn = new JButton(label);
+
+		return (JButton) addComponentToPane(btn, pane);
+	}
+
+	/**
+	 * Adds a fully configured headline to a container.
+	 * 
+	 * @param label
+	 *            is the text to be shown in the headline.
+	 * @param pane
+	 *            is the container the headline will be added to.
+	 * @return a reference to the fully configured headline.
+	 */
+	private JLabel addHeaderToPane(String label, Container pane) {
+		JLabel lblHeader = new JLabel(label);
+		lblHeader.setFont(new Font(Font.DIALOG, Font.BOLD, 24));
+		lblHeader.setBorder(new EmptyBorder(15, 15, 15, 15)); // t, r, b, l
+
+		return (JLabel) addComponentToPane(lblHeader, pane);
+	}
+
+	/**
+	 * Adds a fully configured label to a container.
+	 * 
+	 * @param label
+	 *            is the text to be shown on the label.
+	 * @param pane
+	 *            is the container the label will be added to.
+	 * @return a reference to the fully configured label.
+	 */
+	private JLabel addLabelToPane(String label, Container pane) {
+		String htmlString = "<html>" + label + "</html>";
+		htmlString = htmlString.replaceAll("(\r\n|\n)", "<br/>");
+		JLabel lblText = new JLabel(htmlString, JLabel.CENTER);
+		lblText.setBorder(new EmptyBorder(0, 15, 15, 15)); // t, r, b, l)
+
+		return (JLabel) addComponentToPane(lblText, pane);
+	}
+
+	/**
+	 * Adds any component to a container.
+	 * 
+	 * @param component
+	 *            is the component to be added to the container.
+	 * @param pane
+	 *            is the container the component will be added to.
+	 * @return a reference to the component added to the container.
+	 */
+	private JComponent addComponentToPane(JComponent component, Container pane) {
+		component.setAlignmentX(Component.CENTER_ALIGNMENT);
+		pane.add(component);
+
+		return component;
+	}
+
+	/**
+	 * Fully configures the panel where the user can log in and adds it to the
+	 * specified container.
+	 * 
+	 * @param pane
+	 *            the container the fully configured panel should be added to.
+	 */
+	private void setupLoginPanelOnPane(Container pane) {
+		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
+
+		addHeaderToPane("Login", pane);
+		
+		lblLoginFailed = addLabelToPane("Wrong username or password.\nPlease try again.", pane);
+		lblLoginFailed.setForeground(Color.RED);
+		lblLoginFailed.setVisible(false);
+
+		JTextField txtUsername = addTextFieldToPane("Username", pane);
+		JPasswordField txtPassword = addPasswordFieldToPane("Password", pane);
+
+		addButtonToPane("Login", pane).addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				boolean loggedIn = client.login(txtUsername.getText()
+						.toLowerCase(), new String(txtPassword.getPassword()));
+
+				if (loggedIn) {
+					System.out.println("login from desktop successful");
+					showCard(Cards.TOKEN);
+				} else {
+					System.out
+							.println("login from desktop failed: invalid username or password");
+					lblLoginFailed.setVisible(true);
+				}
+			}
+		});
+
+		addButtonToPane("Create new account", pane).addActionListener(
+				new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						showCard(Cards.SIGN_UP);
+					}
+				});
+	}
+
+	/**
+	 * Fully configures the panel where the user can create a new account and
+	 * adds it to the specified container.
+	 * 
+	 * @param pane
+	 *            the container the fully configured panel should be added to.
+	 */
+	private void setupSignUpPanelOnPane(Container pane) {
+		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
+
+		addHeaderToPane("Sign Up", pane);
+
+		JTextField txtUsername = addTextFieldToPane("Username", pane);
+		JPasswordField txtPassword = addPasswordFieldToPane("Password", pane);
+		JTextField txtSecret = addTextFieldToPane("Secret", pane);
+
+		// Create panel with two buttons: "Cancel" and "Sign Up".
+		JButton btnCancel = new JButton("Cancel");
+		JButton btnSignUp = new JButton("Sign Up");
+
+		JPanel btnPanel = new JPanel();
+		btnPanel.add(btnCancel);
+		btnPanel.add(btnSignUp);
+
+		addComponentToPane(btnPanel, pane);
+
+		btnCancel.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				showCard(Cards.LOGIN);
+			}
+		});
+
+		btnSignUp.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				boolean registered = client.register(txtUsername.getText()
+						.toLowerCase(), new String(txtPassword.getPassword()),
+						txtSecret.getText().toLowerCase());
+
+				if (registered) {
+					System.out.println("registration from desktop successful");
+					showCard(Cards.LOGIN);
+				} else {
+					System.out.println("registration from desktop failed");
+				}
+			}
+		});
+	}
+
+	/**
+	 * Fully configures the panel where the token is shown to the user and adds
+	 * it to the specified container.
+	 * 
+	 * @param pane
+	 *            the container the fully configured panel should be added to.
+	 */
+	private void setupTokenPanelOnPane(Container pane) {
+		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
+
+		addHeaderToPane("Token", pane);
+		addLabelToPane(
+				"Copy the token below and paste it\non the website that just opened.",
+				pane);
+
+		txtToken = addTextFieldToPane("Error: No Token.", pane);
+		txtToken.setEditable(false);
+	}
+
+	/**
+	 * Fully configures the panel where the user can request a new token after
+	 * the second authentication timed out to the specified container.
+	 * 
+	 * @param pane
+	 *            the container the fully configured panel should be added to.
+	 */
+	private void setupTokenTimeoutPanelOnPane(Container pane) {
+		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
+
+		addHeaderToPane("Login Failed", pane);
+		addLabelToPane(
+				"Second authentication timed out.\nRequest a new token and try again.",
+				pane);
+
+		addButtonToPane("Request new token", pane).addActionListener(
+				new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						showCard(Cards.TOKEN);
+					}
+				});
+	}
+
+	/**
+	 * Fully configures the panel which is shown to the user after a successful
+	 * login and adds it to the specified container.
+	 * 
+	 * @param pane
+	 *            the container the fully configured panel should be added to.
+	 */
+	private void setupMainPanelOnPane(Container pane) {
+		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
+
+		addHeaderToPane("Login Successful", pane);
+
+		// Add a fancy clown to the container :o)
+		JLabel imageLabel = new JLabel();
+		imageLabel.setIcon(new ImageIcon(this.getClass().getResource(
+				"clown.gif")));
+		imageLabel.setBorder(new EmptyBorder(0, 15, 15, 15)); // t, r, b, l
+		addComponentToPane(imageLabel, pane);
+	}
+
+	/**
+	 * Redraws the GUI to show a specified card.
+	 * 
+	 * @param card
+	 *            is the card to be shown on the GUI.
+	 */
+	private void showCard(Cards card) {
+		// Special case: Token card needs additional setup.
+		if (card.name().equals(Cards.TOKEN.name())) {
+			txtToken.setText(client.generateToken());
+			openUrlInExternalWebBrowser("http://localhost:8000/token");
+			new AsyncSecondAuthenticationChecker().execute();
+		}
+
+		CardLayout cl = (CardLayout) (cardPane.getLayout());
+		cl.show(cardPane, card.name());
+	}
+
+	/**
+	 * Creates and shows the GUI.
+	 */
+	private void createAndShowGui() {
+		// Set up the window.
+		JFrame frame = new JFrame();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		// TODO exception on server if app is terminated some other way, e.g.
+		// CMD+Q
+		// Close the connection to the server when the window is closing.
+		frame.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				client.exit();
+			}
+		});
+
+		// Create panel with login functionality.
+		JPanel loginPanel = new JPanel();
+		setupLoginPanelOnPane(loginPanel);
+
+		// Create panel with sign-up functionality.
+		JPanel signUpPanel = new JPanel();
+		setupSignUpPanelOnPane(signUpPanel);
+
+		// Create panel which shows the token from the server.
+		JPanel tokenPanel = new JPanel();
+		setupTokenPanelOnPane(tokenPanel);
+
+		// Create a panel which is shown if the second authentication times out.
+		JPanel tokenTimeoutPanel = new JPanel();
+		setupTokenTimeoutPanelOnPane(tokenTimeoutPanel);
+
+		// Create panel which is shown after successful login.
+		JPanel mainPanel = new JPanel();
+		setupMainPanelOnPane(mainPanel);
+
+		// Create a card panel and add all panels.
+		cardPane = new JPanel(new CardLayout());
+		cardPane.add(loginPanel, Cards.LOGIN.name());
+		cardPane.add(signUpPanel, Cards.SIGN_UP.name());
+		cardPane.add(tokenPanel, Cards.TOKEN.name());
+		cardPane.add(tokenTimeoutPanel, Cards.TOKEN_TIMEOUT.name());
+		cardPane.add(mainPanel, Cards.MAIN.name());
+
+		// Show the window.
+		frame.add(cardPane);
+		frame.pack();
+		frame.setVisible(true);
+		frame.requestFocus(); // Needed to remove the focus from the first text
+								// input field.
+	}
+
+	/**
+	 * Opens the given URL in the default web browser.
+	 * 
+	 * @param url
+	 *            the URL to be opened.
+	 */
+	private void openUrlInExternalWebBrowser(String url) {
+		if (java.awt.Desktop.isDesktopSupported()) {
+			Desktop desktop = Desktop.getDesktop();
+
+			if (desktop.isSupported(Desktop.Action.BROWSE)) {
+				URI uri;
+				try {
+					uri = new URI(url);
+					desktop.browse(uri);
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Runs a background thread which waits for a server response to see if the
+	 * second authentication was successful and updates the GUI accordingly.
+	 */
+	private class AsyncSecondAuthenticationChecker extends
+			SwingWorker<Void, Void> {
+
+		@Override
+		protected Void doInBackground() throws Exception {
+			if (client.checkForSecondAuthentication()) {
+				showCard(Cards.MAIN);
+			} else {
+				showCard(Cards.TOKEN_TIMEOUT);
+			}
+			return null;
+		}
+
+	}
+
 }
