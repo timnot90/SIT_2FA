@@ -44,7 +44,7 @@
 							token = $form.find( "input[name='token']" ).val(),
 					url = $form.attr( "action" );
 
-				var sum = +secret + +token;
+				var sum = +secret + +token; 
 				
 				var hashedSum = CryptoJS.SHA1(sum.toString());
 				for (var i = 0; i < 100; i++) {
