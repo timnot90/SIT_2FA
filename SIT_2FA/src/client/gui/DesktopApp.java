@@ -5,7 +5,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -14,8 +16,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.InputVerifier;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -32,7 +36,7 @@ import org.jdesktop.swingx.prompt.PromptSupport;
 import client.Client;
 
 enum Cards {
-	LOGIN, SIGN_UP, TOKEN, MAIN, TOKEN_TIMEOUT
+	LOGIN, SIGN_UP, TOKEN, MAIN, TOKEN_TIMEOUT, ABOUT
 };
 
 public class DesktopApp {
@@ -84,8 +88,9 @@ public class DesktopApp {
 	 *            is the textfield the properties will be set on.
 	 */
 	private void setupInputField(String label, JTextField inputField) {
-		inputField.setColumns(10);
+		inputField.setColumns(15);
 		PromptSupport.setPrompt(label, inputField);
+		inputField.setMargin(new Insets(5, 5, 5, 5));
 		inputField.setMaximumSize(inputField.getPreferredSize());
 	}
 
@@ -117,6 +122,7 @@ public class DesktopApp {
 	 */
 	private JTextField addTextFieldToPane(String label, Container pane) {
 		JTextField txtField = new JTextField();
+		txtField.setInputVerifier(new MyInputVerifier());
 		setupInputField(label, txtField);
 
 		return (JTextField) addComponentToPane(txtField, pane);
@@ -183,8 +189,10 @@ public class DesktopApp {
 	 */
 	private JComponent addComponentToPane(JComponent component, Container pane) {
 		component.setAlignmentX(Component.CENTER_ALIGNMENT);
+		pane.add(Box.createRigidArea(new Dimension(0,2)));
 		pane.add(component);
-
+		pane.add(Box.createRigidArea(new Dimension(0,2)));
+		
 		return component;
 	}
 
@@ -211,8 +219,8 @@ public class DesktopApp {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				boolean loggedIn = client.login(txtUsername.getText()
-						.toLowerCase(), new String(txtPassword.getPassword()));
+				boolean loggedIn = client.login(formatInputText(txtUsername), 
+						new String(txtPassword.getPassword()));
 
 				if (loggedIn) {
 					System.out.println("login from desktop successful");
@@ -231,6 +239,15 @@ public class DesktopApp {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						showCard(Cards.SIGN_UP);
+					}
+				});
+		
+		addButtonToPane("About", pane).addActionListener(
+				new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						showCard(Cards.ABOUT);
 					}
 				});
 	}
@@ -273,9 +290,9 @@ public class DesktopApp {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				boolean registered = client.register(txtUsername.getText()
-						.toLowerCase(), new String(txtPassword.getPassword()),
-						txtSecret.getText().toLowerCase());
+				boolean registered = client.register(formatInputText(txtUsername), 
+						new String(txtPassword.getPassword()),
+						formatInputText(txtSecret));
 
 				if (registered) {
 					System.out.println("registration from desktop successful");
@@ -303,7 +320,14 @@ public class DesktopApp {
 				pane);
 
 		txtToken = addTextFieldToPane("Error: No Token.", pane);
+		
 		txtToken.setEditable(false);
+		txtToken.setFont(new Font(Font.DIALOG, Font.BOLD, 18));
+		txtToken.setMargin(new Insets(5, 5, 5, 5));
+		txtToken.setHorizontalAlignment(JTextField.CENTER);
+		txtToken.setBackground(Color.black);
+		txtToken.setForeground(Color.white);
+		txtToken.setBorder(null);
 	}
 
 	/**
@@ -327,6 +351,29 @@ public class DesktopApp {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						showCard(Cards.TOKEN);
+					}
+				});
+	}
+	
+	/**
+	 * show the credentials of the developer
+	 * @param pane
+	 */
+	private void setupAboutPanelOnPane(Container pane) {
+		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
+		addHeaderToPane("About", pane);
+		
+		addLabelToPane("Christian Titze\n 1123377\n 1123377@stud.hs-mannheim.de&emsp;\n", pane);
+		addLabelToPane("Rene Schmitt\n 1131971\n reneschmitt@gmx.de&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;\n", pane);
+		addLabelToPane("Timo Notheisen\n 1120722\n timo.notheisen@googlemail.com\n", pane);
+		addLabelToPane("Martin Taenzer\n 1123643\n 1123643@stud.hs-mannheim.de&emsp;\n", pane);
+
+		addButtonToPane("< back", pane).addActionListener(
+				new ActionListener() {
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						showCard(Cards.LOGIN);
 					}
 				});
 	}
@@ -378,7 +425,7 @@ public class DesktopApp {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// TODO exception on server if app is terminated some other way, e.g.
-		// CMD+Q
+		// CMD+Q, ALT-F4
 		// Close the connection to the server when the window is closing.
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
@@ -401,6 +448,10 @@ public class DesktopApp {
 		// Create a panel which is shown if the second authentication times out.
 		JPanel tokenTimeoutPanel = new JPanel();
 		setupTokenTimeoutPanelOnPane(tokenTimeoutPanel);
+		
+		// Create a panel which show the creators of the application.
+		JPanel aboutPanel = new JPanel();
+		setupAboutPanelOnPane(aboutPanel);
 
 		// Create panel which is shown after successful login.
 		JPanel mainPanel = new JPanel();
@@ -412,12 +463,14 @@ public class DesktopApp {
 		cardPane.add(signUpPanel, Cards.SIGN_UP.name());
 		cardPane.add(tokenPanel, Cards.TOKEN.name());
 		cardPane.add(tokenTimeoutPanel, Cards.TOKEN_TIMEOUT.name());
+		cardPane.add(aboutPanel, Cards.ABOUT.name());
 		cardPane.add(mainPanel, Cards.MAIN.name());
 
 		// Show the window.
 		frame.add(cardPane);
 		frame.pack();
 		frame.setVisible(true);
+		frame.setResizable(false);
 		frame.requestFocus(); // Needed to remove the focus from the first text
 								// input field.
 	}
@@ -445,6 +498,13 @@ public class DesktopApp {
 			}
 		}
 	}
+	
+	private String formatInputText(JTextField inputText) {
+		String text = inputText.getText().toLowerCase();
+		text = text.replaceAll("[^a-zA-Z0-9]", "");
+		
+		return text;
+	}
 
 	/**
 	 * Runs a background thread which waits for a server response to see if the
@@ -464,5 +524,14 @@ public class DesktopApp {
 		}
 
 	}
+	
+	private class MyInputVerifier extends InputVerifier {
+        public boolean verify(JComponent input) {
+            JTextField tf = (JTextField) input;
+            String s = tf.getText();
+            
+            return s.matches("[a-zA-Z0-9]+");
+        }
+    }
 
 }
