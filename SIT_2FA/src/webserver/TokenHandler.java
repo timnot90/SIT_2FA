@@ -105,7 +105,7 @@ public class TokenHandler implements HttpHandler {
 		byte[] hash = null;
 		MessageDigest digest;
 		try {
-			digest = MessageDigest.getInstance("SHA-1");
+			digest = MessageDigest.getInstance("SHA-256");
 			digest.reset();
 			hash = digest.digest(text.getBytes("UTF-8"));
 			for (int i = 0; i < HASH_ITERATIONS; i++) {
