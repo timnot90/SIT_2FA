@@ -2,43 +2,48 @@
 		One of your entered values was wrong or the valid time of your random number expired. <br/>
 		Please check your inputs and try again.
 </div>
-<form id="tokenForm" action="http://localhost:8000/Token" method="post">
-
+<form id="tokenForm" action="http://localhost:8000/Token" method="post">	
 	<label for="username">Username:</label><br/>
 	<input type="text" id="username" name="username"/><br/>
 	
 	<label for="secret">Secret:</label><br/>
 	<input type="password" id="secret" name="secret"/><br/>
 	
-	<label for="random">Random Number:</label><br/>
-	<input type="password" id="random" name="random"/><br/>
+	<label for="token">Token:</label><br/>
+	<input type="password" id="token" name="token"/><br/>
 	
 	<button type="submit">Submit</button>
-	
 </form>
-
 <script>
+	// convert String to WordArray
+	var wordArray = CryptoJS.enc.Utf8.parse('Hello');		
+
 	// Attach a submit handler to the form
 	$( "#tokenForm" ).submit(function( event ) {
-	 
-		// Stop form from submitting normally
+	 	// Stop form from submitting normally
 		event.preventDefault();
 		 
 		// Get some values from elements on the page:
 		var $form = $( this ),
 			username = $form.find( "input[name='username']" ).val(),
 			secret = $form.find( "input[name='secret']" ).val(),
-			random = $form.find( "input[name='random']" ).val(),
+					token = $form.find( "input[name='token']" ).val(),
 			url = $form.attr( "action" );
-		 
-		var token = +secret + +random;
-		 
+
+		var sum = +secret + +token;
+		
+		var hashedSum = CryptoJS.SHA1(sum.toString());
+		for (var i = 0; i < 100; i++) {
+			hashedSum = CryptoJS.SHA1(hashedSum);
+		}
+
+		var hashedStringSum = CryptoJS.enc.Base64.stringify(hashedSum);
 		// Send the data using post
-		var posting = $.post( url, { username: username, token: token } );
+		var posting = $.post( url, { username: username, sum: hashedStringSum } );
 		 
 		// Put the results in a div
 		posting.done(function( data ) {
 			$( "#content" ).empty().append( data );
-		  });
+		});
 	});
 </script>

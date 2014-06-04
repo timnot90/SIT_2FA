@@ -16,13 +16,13 @@ public class SecondAuthenticationAction {
 		while(userDb.isTokenValid(username)	&& !secondAuthenticationSuccess) {
 			secondAuthenticationSuccess = userDb.isAuthenticatedWithToken(username);
 			try {
-				System.out.println("sleep");
-			    Thread.sleep(5000);
+			    Thread.sleep(3000);
 			} catch(InterruptedException ex) {
 			    Thread.currentThread().interrupt();
 			}
 		}
 		userDb.setTokenUsed(true, username);
+		userDb.setIsAuthenticatedWithToken(username, false);
 		
 		return secondAuthenticationSuccess;
 	}

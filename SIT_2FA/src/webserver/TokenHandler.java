@@ -51,21 +51,18 @@ public class TokenHandler implements HttpHandler {
 					.getAttribute("parameters");
 
 			String username = params.get("username").toString();
-			String receivedToken = params.get("token").toString();
+			String receivedSum = params.get("sum").toString();
 
 			Integer randomNumber = Integer.parseInt(db.getToken(username));
 			Integer secret = Integer.parseInt(db.getSecret(username));
-			String expectedToken = hashToken(((Integer) (randomNumber + secret))
+			String expectedSum = hash(((Integer) (randomNumber + secret))
 					.toString());
 			
 			LocalDateTime expirationDate = db.getExpirationDate(username);
-
-			System.out.println(receivedToken);
-			System.out.println(expectedToken);
 			
 			// check if the token is still valid
-			if (expirationDate.isAfter(LocalDateTime.now())) {
-				if (receivedToken.equals(expectedToken)) {
+			if (expirationDate.isAfter(LocalDateTime.now().plusSeconds(6))) {
+				if (receivedSum.equals(expectedSum)) {
 					sendHtml(httpExchange, "tokenOk.html");
 					db.setIsAuthenticatedWithToken(username, true);
 				} else {
@@ -106,13 +103,13 @@ public class TokenHandler implements HttpHandler {
 		return new String(content, "UTF-8");
 	}
 
-	private static String hashToken(String token) {
+	private static String hash(String text) {
 		byte[] hash = null;
 		MessageDigest digest;
 		try {
 			digest = MessageDigest.getInstance("SHA-1");
 			digest.reset();
-			hash = digest.digest(token.getBytes("UTF-8"));
+			hash = digest.digest(text.getBytes("UTF-8"));
 			for (int i = 0; i < HASH_ITERATIONS; i++) {
 				digest.reset();
 				hash = digest.digest(hash);
