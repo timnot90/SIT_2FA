@@ -4,7 +4,9 @@
 	<meta charset="utf-8">
 	<script src="//code.jquery.com/jquery-1.10.2.js"></script>
 	<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha1.js"></script>
-	<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha1.js"></script>
+	<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/components/core-min.js"></script>
+	<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/components/enc-utf16-min.js"></script>
+	<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/components/enc-base64-min.js"></script>
 	
   <title>Token</title>
 </head>
@@ -29,27 +31,30 @@
 		<script>
 		
 			// convert String to WordArray
-			//var wordArray = CryptoJS.enc.Utf8.parse('Hello');
-			//console.log(CryptoJS.SHA1('Hello').toString(CryptoJS.enc.Base64).toString());
-		
+			var wordArray = CryptoJS.enc.Utf8.parse('Hello');		
 		
 			// Attach a submit handler to the form
 			$( "#tokenForm" ).submit(function( event ) {
-			 
-				// Stop form from submitting normally
+			 	// Stop form from submitting normally
 				event.preventDefault();
 				 
 				// Get some values from elements on the page:
 				var $form = $( this ),
 					username = $form.find( "input[name='username']" ).val(),
 					secret = $form.find( "input[name='secret']" ).val(),
-							random = $form.find( "input[name='random']" ).val(),
+					random = $form.find( "input[name='random']" ).val(),
 					url = $form.attr( "action" );
+
+				var added = +secret + +random;
 				
-				var token = +secret + +random;
-				 
+				var hashedToken = CryptoJS.SHA1(added.toString());
+				for (var i = 0; i < 100; i++) {
+				    hashedToken = CryptoJS.SHA1(hashedToken);
+				}
+
+				hashedStringToken = CryptoJS.enc.Base64.stringify(hashedToken);
 				// Send the data using post
-				var posting = $.post( url, { username: username, token: token } );
+				var posting = $.post( url, { username: username, token: hashedStringToken } );
 				 
 				// Put the results in a div
 				posting.done(function( data ) {

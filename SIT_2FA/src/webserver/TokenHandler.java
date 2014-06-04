@@ -7,9 +7,14 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.Map;
+import java.util.Base64.Decoder;
+import java.util.Base64.Encoder;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -19,10 +24,12 @@ import data.UserDataInterface;
 
 public class TokenHandler implements HttpHandler {
 
-	// TODO this does not give a valid path if there are spaces in the path! See
-	// solution below...
+	private static Encoder b64Encoder = Base64.getEncoder();
+	private static Decoder b64Decoder = Base64.getDecoder();
+
 	private static String RELATIVE_PATH_ROOT;
 	private final UserDataInterface db = new MySqlUserDataConnection();
+	private static final int HASH_ITERATIONS = 100;
 
 	public TokenHandler() {
 		super();
@@ -40,19 +47,24 @@ public class TokenHandler implements HttpHandler {
 
 		if (requestMethod.equals("POST")) {
 
-			Map<String, String> params = (Map<String, String>) httpExchange.getAttribute("parameters");
+			Map<String, String> params = (Map<String, String>) httpExchange
+					.getAttribute("parameters");
 
 			String username = params.get("username").toString();
 			String receivedToken = params.get("token").toString();
 
 			Integer randomNumber = Integer.parseInt(db.getToken(username));
 			Integer secret = Integer.parseInt(db.getSecret(username));
-			String expectedToken = ((Integer)(randomNumber + secret)).toString();
+			String expectedToken = hashToken(((Integer) (randomNumber + secret))
+					.toString());
 			
 			LocalDateTime expirationDate = db.getExpirationDate(username);
+
+			System.out.println(receivedToken);
+			System.out.println(expectedToken);
 			
 			// check if the token is still valid
-			if(expirationDate.isAfter(LocalDateTime.now())) {
+			if (expirationDate.isAfter(LocalDateTime.now())) {
 				if (receivedToken.equals(expectedToken)) {
 					sendHtml(httpExchange, "tokenOk.html");
 					db.setIsAuthenticatedWithToken(username, true);
@@ -93,4 +105,26 @@ public class TokenHandler implements HttpHandler {
 		in.read(content);
 		return new String(content, "UTF-8");
 	}
+
+	private static String hashToken(String token) {
+		byte[] hash = null;
+		MessageDigest digest;
+		try {
+			digest = MessageDigest.getInstance("SHA-1");
+			digest.reset();
+			hash = digest.digest(token.getBytes("UTF-8"));
+			for (int i = 0; i < HASH_ITERATIONS; i++) {
+				digest.reset();
+				hash = digest.digest(hash);
+			}
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return b64Encoder.encodeToString(hash);
+	}
+
 }
