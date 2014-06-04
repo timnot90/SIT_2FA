@@ -9,12 +9,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.Base64;
-import java.util.Map;
-import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
+import java.util.Map;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -25,7 +23,6 @@ import data.UserDataInterface;
 public class TokenHandler implements HttpHandler {
 
 	private static Encoder b64Encoder = Base64.getEncoder();
-	private static Decoder b64Decoder = Base64.getDecoder();
 
 	private static String RELATIVE_PATH_ROOT;
 	private final UserDataInterface db = new MySqlUserDataConnection();
@@ -46,26 +43,23 @@ public class TokenHandler implements HttpHandler {
 		String requestMethod = httpExchange.getRequestMethod().toUpperCase();
 
 		if (requestMethod.equals("POST")) {
-
-			Map<String, String> params = (Map<String, String>) httpExchange
-					.getAttribute("parameters");
+			@SuppressWarnings("unchecked")
+			Map<String, String> params = (Map<String, String>) (httpExchange
+					.getAttribute("parameters"));
 
 			String username = params.get("username").toString();
-			String receivedToken = params.get("token").toString();
+			String receivedSum = params.get("sum").toString();
 
 			Integer randomNumber = Integer.parseInt(db.getToken(username));
 			Integer secret = Integer.parseInt(db.getSecret(username));
-			String expectedToken = hashToken(((Integer) (randomNumber + secret))
+			String expectedSum = hash(((Integer) (randomNumber + secret))
 					.toString());
-			
+
 			LocalDateTime expirationDate = db.getExpirationDate(username);
 
-			System.out.println(receivedToken);
-			System.out.println(expectedToken);
-			
 			// check if the token is still valid
-			if (expirationDate.isAfter(LocalDateTime.now())) {
-				if (receivedToken.equals(expectedToken)) {
+			if (expirationDate.isAfter(LocalDateTime.now().plusSeconds(6))) {
+				if (receivedSum.equals(expectedSum)) {
 					sendHtml(httpExchange, "tokenOk.html");
 					db.setIsAuthenticatedWithToken(username, true);
 				} else {
@@ -103,16 +97,17 @@ public class TokenHandler implements HttpHandler {
 		byte[] content = new byte[(int) file.length()];
 		FileInputStream in = new FileInputStream(file);
 		in.read(content);
+		in.close();
 		return new String(content, "UTF-8");
 	}
 
-	private static String hashToken(String token) {
+	private static String hash(String text) {
 		byte[] hash = null;
 		MessageDigest digest;
 		try {
-			digest = MessageDigest.getInstance("SHA-1");
+			digest = MessageDigest.getInstance("SHA-256");
 			digest.reset();
-			hash = digest.digest(token.getBytes("UTF-8"));
+			hash = digest.digest(text.getBytes("UTF-8"));
 			for (int i = 0; i < HASH_ITERATIONS; i++) {
 				digest.reset();
 				hash = digest.digest(hash);

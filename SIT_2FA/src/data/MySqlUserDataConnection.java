@@ -107,8 +107,7 @@ public class MySqlUserDataConnection implements UserDataInterface {
 			rs.next();
 			password = rs.getString("password");
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.printf("Cold not find user: %s%n", username);
 		}
 		return password;
 	}
@@ -125,8 +124,7 @@ public class MySqlUserDataConnection implements UserDataInterface {
 			rs.next();
 			salt = rs.getString("salt");
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.printf("Cold not find user: %s%n", username);
 		}
 		return salt;
 	}
@@ -151,6 +149,7 @@ public class MySqlUserDataConnection implements UserDataInterface {
 
 	@Override
 	public Date getTokenExpirationDate(String username) {
+		@SuppressWarnings("unused")
 		String expirationDate = "";
 		String statement = "SELECT experationDate FROM users WHERE username= ? ;";
 		try {

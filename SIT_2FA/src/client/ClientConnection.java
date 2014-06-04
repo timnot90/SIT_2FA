@@ -25,6 +25,7 @@ public class ClientConnection {
 	private int serverPort = 2020;
 	private Socket clientSocket;
 	private SignatureMethod signature;
+	@SuppressWarnings("unused")
 	private PublicKeyEncryption encryption;
 	private PublicKey pubK;
 
@@ -32,8 +33,7 @@ public class ClientConnection {
 	private PrintWriter out;
 	private Gson gson;
 	
-	private String algorithm = "RSA";
-	private int bit = 4096;
+	private String algorithm = "RSA"; // 4094 bit keys
 	private String publicKeyPath = "src" + File.separator + "client"
 			+ File.separator + "public.key";
 	
@@ -101,7 +101,6 @@ public class ClientConnection {
 	 */
 	public String readMessage() {
 		String message = "";
-		String signature = "";
 		try {
 			String[] messages = gson.fromJson(in.readLine(), String[].class);
 			if(this.signature.validSignature(messages[0], messages[1], pubK)) {

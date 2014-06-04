@@ -20,7 +20,6 @@ public class LoginAction {
 	 * @param username 
 	 */
 	public boolean login(String username) {
-		boolean loggedIn = false;
 		client.sendSignedAndEncryptedText(userDb.getSalt(username));
 		
 		String passwordHash = client.readMessageAndDecrypt();
