@@ -46,9 +46,7 @@ public class ParameterFilter extends Filter {
         throws IOException {
 
         if ("post".equalsIgnoreCase(exchange.getRequestMethod())) {
-            @SuppressWarnings("unchecked")
-            Map parameters =
-                (Map)exchange.getAttribute("parameters");
+            Map parameters = (Map)exchange.getAttribute("parameters");
             InputStreamReader isr =
                 new InputStreamReader(exchange.getRequestBody(),"utf-8");
             BufferedReader br = new BufferedReader(isr);

@@ -9,12 +9,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.Base64;
-import java.util.Map;
-import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
+import java.util.Map;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -25,7 +23,6 @@ import data.UserDataInterface;
 public class TokenHandler implements HttpHandler {
 
 	private static Encoder b64Encoder = Base64.getEncoder();
-	private static Decoder b64Decoder = Base64.getDecoder();
 
 	private static String RELATIVE_PATH_ROOT;
 	private final UserDataInterface db = new MySqlUserDataConnection();
@@ -46,9 +43,9 @@ public class TokenHandler implements HttpHandler {
 		String requestMethod = httpExchange.getRequestMethod().toUpperCase();
 
 		if (requestMethod.equals("POST")) {
-
-			Map<String, String> params = (Map<String, String>) httpExchange
-					.getAttribute("parameters");
+			@SuppressWarnings("unchecked")
+			Map<String, String> params = (Map<String, String>) (httpExchange
+					.getAttribute("parameters"));
 
 			String username = params.get("username").toString();
 			String receivedSum = params.get("sum").toString();
@@ -57,9 +54,9 @@ public class TokenHandler implements HttpHandler {
 			Integer secret = Integer.parseInt(db.getSecret(username));
 			String expectedSum = hash(((Integer) (randomNumber + secret))
 					.toString());
-			
+
 			LocalDateTime expirationDate = db.getExpirationDate(username);
-			
+
 			// check if the token is still valid
 			if (expirationDate.isAfter(LocalDateTime.now().plusSeconds(6))) {
 				if (receivedSum.equals(expectedSum)) {
@@ -100,6 +97,7 @@ public class TokenHandler implements HttpHandler {
 		byte[] content = new byte[(int) file.length()];
 		FileInputStream in = new FileInputStream(file);
 		in.read(content);
+		in.close();
 		return new String(content, "UTF-8");
 	}
 

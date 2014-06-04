@@ -1,14 +1,7 @@
 package webserver;
 
-import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-import java.util.Base64.Decoder;
-import java.util.Base64.Encoder;
 
-import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 
 public class Webserver {
