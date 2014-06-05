@@ -125,7 +125,6 @@ public class DesktopApp {
 	 */
 	private JTextField addTextFieldToPane(String label, Container pane) {
 		JTextField txtField = new JTextField();
-		txtField.setInputVerifier(new AlphanumericCharacterInputVerifier());
 		setupInputField(label, txtField);
 
 		return (JTextField) addComponentToPane(txtField, pane);
@@ -553,17 +552,4 @@ public class DesktopApp {
 		}
 
 	}
-
-	/**
-	 * Only allows alphanumeric characters as an input for textfields.
-	 */
-	private class AlphanumericCharacterInputVerifier extends InputVerifier {
-		public boolean verify(JComponent input) {
-			JTextField tf = (JTextField) input;
-			String s = tf.getText();
-
-			return s.matches("[a-zA-Z0-9]+");
-		}
-	}
-
 }
