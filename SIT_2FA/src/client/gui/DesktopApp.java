@@ -8,6 +8,9 @@ import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -408,7 +411,13 @@ public class DesktopApp {
 		// Special case: Token card needs additional setup.
 		if (card.name().equals(Cards.TOKEN.name())) {
 			txtToken.setText(client.generateToken());
+			
 			openUrlInExternalWebBrowser("http://localhost:8000/token");
+			
+			StringSelection stringSelection = new StringSelection(txtToken.getText());
+		    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+		    clipboard.setContents(stringSelection, stringSelection);
+		    
 			new AsyncSecondAuthenticationChecker().execute();
 		}
 
