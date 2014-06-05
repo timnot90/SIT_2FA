@@ -125,7 +125,7 @@ public class DesktopApp {
 	 */
 	private JTextField addTextFieldToPane(String label, Container pane) {
 		JTextField txtField = new JTextField();
-		txtField.setInputVerifier(new MyInputVerifier());
+		txtField.setInputVerifier(new AlphanumericCharacterInputVerifier());
 		setupInputField(label, txtField);
 
 		return (JTextField) addComponentToPane(txtField, pane);
@@ -192,10 +192,10 @@ public class DesktopApp {
 	 */
 	private JComponent addComponentToPane(JComponent component, Container pane) {
 		component.setAlignmentX(Component.CENTER_ALIGNMENT);
-		pane.add(Box.createRigidArea(new Dimension(0,2)));
+		pane.add(Box.createRigidArea(new Dimension(0, 2)));
 		pane.add(component);
-		pane.add(Box.createRigidArea(new Dimension(0,2)));
-		
+		pane.add(Box.createRigidArea(new Dimension(0, 2)));
+
 		return component;
 	}
 
@@ -210,8 +210,9 @@ public class DesktopApp {
 		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
 
 		addHeaderToPane("Login", pane);
-		
-		lblLoginFailed = addLabelToPane("Wrong username or password.\nPlease try again.", pane);
+
+		lblLoginFailed = addLabelToPane(
+				"Wrong username or password.\nPlease try again.", pane);
 		lblLoginFailed.setForeground(Color.RED);
 		lblLoginFailed.setVisible(false);
 
@@ -222,7 +223,7 @@ public class DesktopApp {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				boolean loggedIn = client.login(formatInputText(txtUsername), 
+				boolean loggedIn = client.login(cleanUpTextFromTextField(txtUsername),
 						new String(txtPassword.getPassword()));
 
 				if (loggedIn) {
@@ -244,15 +245,14 @@ public class DesktopApp {
 						showCard(Cards.SIGN_UP);
 					}
 				});
-		
-		addButtonToPane("About", pane).addActionListener(
-				new ActionListener() {
 
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						showCard(Cards.ABOUT);
-					}
-				});
+		addButtonToPane("About", pane).addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				showCard(Cards.ABOUT);
+			}
+		});
 	}
 
 	/**
@@ -293,9 +293,10 @@ public class DesktopApp {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				boolean registered = client.register(formatInputText(txtUsername), 
+				boolean registered = client.register(
+						cleanUpTextFromTextField(txtUsername),
 						new String(txtPassword.getPassword()),
-						formatInputText(txtSecret));
+						cleanUpTextFromTextField(txtSecret));
 
 				if (registered) {
 					System.out.println("registration from desktop successful");
@@ -323,7 +324,7 @@ public class DesktopApp {
 				pane);
 
 		txtToken = addTextFieldToPane("Error: No Token.", pane);
-		
+
 		txtToken.setEditable(false);
 		txtToken.setFont(new Font(Font.DIALOG, Font.BOLD, 18));
 		txtToken.setMargin(new Insets(5, 5, 5, 5));
@@ -357,28 +358,38 @@ public class DesktopApp {
 					}
 				});
 	}
-	
+
 	/**
-	 * show the credentials of the developer
+	 * Fully configures the panel containing information about the developers to
+	 * the specified container.
+	 * 
 	 * @param pane
+	 *            the container the fully configured panel should be added to.
 	 */
 	private void setupAboutPanelOnPane(Container pane) {
 		pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
 		addHeaderToPane("About", pane);
-		
-		addLabelToPane("Christian Titze\n 1123377\n 1123377@stud.hs-mannheim.de&emsp;\n", pane);
-		addLabelToPane("Rene Schmitt\n 1131971\n reneschmitt@gmx.de&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;\n", pane);
-		addLabelToPane("Timo Notheisen\n 1120722\n timo.notheisen@googlemail.com\n", pane);
-		addLabelToPane("Martin Taenzer\n 1123643\n 1123643@stud.hs-mannheim.de&emsp;\n", pane);
 
-		addButtonToPane("< back", pane).addActionListener(
-				new ActionListener() {
+		addLabelToPane(
+				"Christian Titze\nMatrikelnummer: 1123377\n1123377@stud.hs-mannheim.de\n",
+				pane);
+		addLabelToPane(
+				"Rene Schmitt\nMatrikelnummer: 1131971\n1131971@stud.hs-mannheim.de\n",
+				pane);
+		addLabelToPane(
+				"Timo Notheisen\nMatrikelnummer: 1120722\n1120722@stud.hs-mannheim.de\n",
+				pane);
+		addLabelToPane(
+				"Martin Tänzer\nMatrikelnummer: 1123643\n1123643@stud.hs-mannheim.de\n",
+				pane);
 
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						showCard(Cards.LOGIN);
-					}
-				});
+		addButtonToPane("Back", pane).addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				showCard(Cards.LOGIN);
+			}
+		});
 	}
 
 	/**
@@ -457,8 +468,8 @@ public class DesktopApp {
 		// Create a panel which is shown if the second authentication times out.
 		JPanel tokenTimeoutPanel = new JPanel();
 		setupTokenTimeoutPanelOnPane(tokenTimeoutPanel);
-		
-		// Create a panel which show the creators of the application.
+
+		// Create a panel which shows information about the developers of the application.
 		JPanel aboutPanel = new JPanel();
 		setupAboutPanelOnPane(aboutPanel);
 
@@ -507,11 +518,20 @@ public class DesktopApp {
 			}
 		}
 	}
-	
-	private String formatInputText(JTextField inputText) {
+
+	/**
+	 * Removes all non-alphanumeric characters from a given string in a
+	 * {@link JTextField}.
+	 * 
+	 * @param inputText
+	 *            is the textfield containing the string to be cleaned up.
+	 * @return a representation of the original string containing only
+	 *         alphanumeric characters.
+	 */
+	private String cleanUpTextFromTextField(JTextField inputText) {
 		String text = inputText.getText().toLowerCase();
 		text = text.replaceAll("[^a-zA-Z0-9]", "");
-		
+
 		return text;
 	}
 
@@ -533,14 +553,17 @@ public class DesktopApp {
 		}
 
 	}
-	
-	private class MyInputVerifier extends InputVerifier {
-        public boolean verify(JComponent input) {
-            JTextField tf = (JTextField) input;
-            String s = tf.getText();
-            
-            return s.matches("[a-zA-Z0-9]+");
-        }
-    }
+
+	/**
+	 * Only allows alphanumeric characters as an input for textfields.
+	 */
+	private class AlphanumericCharacterInputVerifier extends InputVerifier {
+		public boolean verify(JComponent input) {
+			JTextField tf = (JTextField) input;
+			String s = tf.getText();
+
+			return s.matches("[a-zA-Z0-9]+");
+		}
+	}
 
 }
