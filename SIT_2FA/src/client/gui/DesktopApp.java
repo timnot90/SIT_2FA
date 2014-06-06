@@ -22,7 +22,6 @@ import java.net.URISyntaxException;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
-import javax.swing.InputVerifier;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -420,15 +419,19 @@ public class DesktopApp {
 	private void showCard(Cards card) {
 		// Special case: Token card needs additional setup.
 		if (card.name().equals(Cards.TOKEN.name())) {
+			// Generate the token.
 			txtToken.setText(client.generateToken());
 			
-			openUrlInExternalWebBrowser("http://localhost:8000/token");
-			
+			// Copy the token to the system clipboard.
 			StringSelection stringSelection = new StringSelection(txtToken.getText());
 		    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		    clipboard.setContents(stringSelection, stringSelection);
+			
+			// Open the website to enter the token.
+			openUrlInExternalWebBrowser("http://localhost:8000/token");
 		    
-			new AsyncSecondAuthenticationChecker().execute();
+			// Run check for second authentication in background.
+		    new AsyncSecondAuthenticationChecker().execute();
 		}
 
 		CardLayout cl = (CardLayout) (cardPane.getLayout());
@@ -443,8 +446,6 @@ public class DesktopApp {
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		// TODO exception on server if app is terminated some other way, e.g.
-		// CMD+Q, ALT-F4
 		// Close the connection to the server when the window is closing.
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
