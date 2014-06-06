@@ -318,7 +318,7 @@ public class DesktopApp {
 
 		addHeaderToPane("Token", pane);
 		addLabelToPane(
-				"Copy the token below and paste it\non the website that just opened.",
+				"The token below has been\ncopied to your clipboard.\n\nYou can now paste it on the\nwebsite that just opened.",
 				pane);
 
 		txtToken = addTextFieldToPane("Error: No Token.", pane);
